@@ -28,6 +28,9 @@ dist/
 # Env
 .env
 
+# Database (SQLite)
+*.db
+
 # SSL certificates
 ssl/
 
