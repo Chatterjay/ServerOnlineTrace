@@ -22,6 +22,14 @@
           关于
         </router-link>
 
+        <span v-if="dbType"
+          class="text-[10px] px-1.5 py-0.5 rounded font-mono shrink-0"
+          :class="dbType === 'SQLite'
+            ? (resolved === 'light' ? 'bg-green-100 text-green-700' : 'bg-green-900/30 text-green-400')
+            : (resolved === 'light' ? 'bg-blue-100 text-blue-700' : 'bg-blue-900/30 text-blue-400')">
+          {{ dbType }}
+        </span>
+
         <!-- 主题切换按钮 -->
         <button @click="cycleTheme"
           class="cursor-pointer ml-2 w-8 h-8 flex items-center justify-center rounded-lg text-sm transition-all hover:scale-110"
@@ -94,6 +102,7 @@
 
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from "vue";
+import { fetchDbType } from "./api/index.js";
 
 type Theme = "dark" | "light" | "auto";
 const KEY = "tracesession-theme";
@@ -103,6 +112,7 @@ const LABELS: Record<Theme, string> = { dark: "深色", light: "浅色", auto: "
 
 const theme = ref<Theme>((localStorage.getItem(KEY) as Theme) || "auto");
 const sysDark = ref(true);
+const dbType = ref<string | null>(null);
 
 const resolved = computed(() => {
   if (theme.value === "auto") return sysDark.value ? "dark" : "light";
@@ -124,6 +134,7 @@ watch(resolved, (v) => {
 }, { immediate: true });
 
 onMounted(() => {
+  fetchDbType().then(info => { dbType.value = info.type; }).catch(() => {});
   sysDark.value = window.matchMedia("(prefers-color-scheme: dark)").matches;
   window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", (e) => {
     sysDark.value = e.matches;

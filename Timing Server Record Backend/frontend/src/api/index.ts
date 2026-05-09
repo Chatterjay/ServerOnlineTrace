@@ -194,3 +194,13 @@ export async function fetchChatMessages(serverId: string): Promise<ChatMessage[]
   return res.json();
 }
 
+export interface DbInfo {
+  type: "SQLite" | "PostgreSQL";
+  file: string | null;
+}
+
+export async function fetchDbType(): Promise<DbInfo> {
+  const res = await fetch(`${BASE}/db-type`);
+  return res.json();
+}
+

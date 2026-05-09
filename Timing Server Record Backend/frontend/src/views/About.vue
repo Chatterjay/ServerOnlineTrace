@@ -38,6 +38,52 @@
       </div>
     </GlowCard>
 
+    <GlowCard cardClass="card p-4 sm:p-6" hoverClass="">
+      <h3 class="text-base font-semibold mb-3 flex items-center gap-2"
+        :class="dbInfo ? (dbInfo.type === 'SQLite' ? 'text-green-400' : 'text-blue-400') : 'text-gray-400'">
+        <svg class="w-4 h-4" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+          <ellipse cx="8" cy="4" rx="6" ry="2.5"/>
+          <path d="M2 4v8c0 1.4 2.7 2.5 6 2.5s6-1.1 6-2.5V4"/>
+          <path d="M2 8c0 1.4 2.7 2.5 6 2.5S14 9.4 14 8"/>
+        </svg>
+        数据库
+      </h3>
+
+      <div v-if="dbInfo" class="space-y-3 text-sm">
+        <div class="flex items-center gap-2">
+          <span class="text-gray-500">当前类型：</span>
+          <span class="px-2 py-0.5 rounded text-xs font-mono"
+            :class="dbInfo.type === 'SQLite'
+              ? 'bg-green-900/30 text-green-400'
+              : 'bg-blue-900/30 text-blue-400'">
+            {{ dbInfo.type }}
+          </span>
+          <span v-if="dbInfo.file" class="text-gray-500 text-xs font-mono">({{ dbInfo.file }})</span>
+        </div>
+
+        <div v-if="dbInfo.type === 'SQLite'" class="text-gray-400 leading-relaxed space-y-2">
+          <p>系统当前使用 <span class="text-green-400 font-medium">SQLite</span> 作为数据库，数据存储在本地文件中，无需额外配置即可使用，适合单机调试和小规模使用。</p>
+          <div class="bg-gray-800/50 border border-gray-700/50 rounded p-3 space-y-1.5">
+            <p class="text-gray-300 font-medium">切换到 PostgreSQL（生产环境）</p>
+            <ol class="list-decimal list-inside space-y-1 text-gray-400">
+              <li>安装 PostgreSQL 并创建数据库（例如 <code class="text-gray-300">tracesession</code>）</li>
+              <li>编辑 <code class="text-gray-300">backend/.env</code> 文件，设置数据库连接：
+                <pre class="mt-1 bg-gray-900/60 rounded px-2 py-1.5 text-xs text-gray-300 overflow-x-auto">DATABASE_URL=postgresql://用户:密码@localhost:5432/tracesession</pre>
+              </li>
+              <li>重启后端服务即可自动切换</li>
+            </ol>
+          </div>
+        </div>
+
+        <div v-else class="text-gray-400 leading-relaxed">
+          <p>系统当前使用 <span class="text-blue-400 font-medium">PostgreSQL</span> 作为数据库，适合多服务器并发和生产环境部署。</p>
+          <p class="mt-2">如需切换回 SQLite，清空 <code class="text-gray-300">.env</code> 中的 <code class="text-gray-300">DATABASE_URL</code> 或将其注释掉，重启后端即可。</p>
+        </div>
+      </div>
+
+      <p v-else class="text-sm text-gray-500">加载中...</p>
+    </GlowCard>
+
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
       <GlowCard cardClass="card p-4 sm:p-6" hoverClass="">
         <h3 class="text-base font-semibold mb-3 text-amber-400 flex items-center gap-2">
@@ -100,5 +146,13 @@
 </template>
 
 <script setup lang="ts">
+import { ref, onMounted } from "vue";
+import { fetchDbType } from "../api/index.js";
+import type { DbInfo } from "../api/index.js";
 import GlowCard from "../components/GlowCard.vue";
+
+const dbInfo = ref<DbInfo | null>(null);
+onMounted(() => {
+  fetchDbType().then(info => { dbInfo.value = info; }).catch(() => {});
+});
 </script>

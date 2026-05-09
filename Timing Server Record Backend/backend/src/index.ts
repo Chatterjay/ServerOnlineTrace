@@ -31,6 +31,13 @@ app.get("/api/health", (_req, res) => {
   res.json({ ok: true, time: new Date().toISOString() });
 });
 
+// Report database type
+app.get("/api/db-type", (_req, res) => {
+  const url = process.env.DATABASE_URL || "";
+  const type = url.startsWith("postgresql") ? "PostgreSQL" : "SQLite";
+  res.json({ type, file: type === "SQLite" ? "data/tracesession.db" : null });
+});
+
 // ── HTTP server (backward compat, also redirects to HTTPS) ──
 app.listen(HTTP_PORT, () => {
   console.log(`Backend (HTTP) running at http://localhost:${HTTP_PORT}`);
