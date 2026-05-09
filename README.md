@@ -8,7 +8,7 @@ TraceSession 是一个 Minecraft 服务器在线时长追踪系统。
 
 从 **https://nodejs.org** 下载 **LTS 版本**（22.x）并安装。安装时全部默认选项即可。
 
-Node.js 安装包自带 **npm**，无需额外安装。安装完成后打开命令行验证：
+Node.js 安装包自带 npm，无需额外安装。安装完成后打开命令行验证：
 
 ```
 node --version
