@@ -297,3 +297,24 @@ body::after {
   opacity: 0.3;
   cursor: default;
 }
+
+[data-theme="light"] .terminal-box {
+  background: rgba(255, 255, 255, 0.6);
+  border-color: rgba(156, 163, 175, 0.3);
+}
+[data-theme="light"] .terminal-cmd {
+  color: #374151;
+}
+[data-theme="light"] .terminal-input {
+  color: #374151;
+}
+[data-theme="light"] .terminal-input::placeholder {
+  color: #9ca3af;
+}
+[data-theme="light"] .terminal-input-row {
+  background: rgba(0, 0, 0, 0.04);
+  border-top-color: rgba(156, 163, 175, 0.3);
+}
+[data-theme="light"] .terminal-time {
+  color: #9ca3af;
+}

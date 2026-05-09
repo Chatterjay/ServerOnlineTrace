@@ -10,6 +10,34 @@
       </p>
     </GlowCard>
 
+    <GlowCard cardClass="card p-4 sm:p-6" hoverClass="">
+      <h3 class="text-base font-semibold mb-3 text-cyan-400 flex items-center gap-2">
+        <svg class="w-4 h-4" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="3"/><path d="M8 1v3M8 12v3M1 8h3M12 8h3"/></svg>
+        服务器与网站连接机制
+      </h3>
+      <div class="space-y-3 text-sm text-gray-400 leading-relaxed">
+        <p>
+          <span class="text-cyan-400 font-medium">① 模组安装</span> — 将 TraceSession 模组放入 Minecraft 服务器
+          <code class="text-gray-300">mods/</code> 目录，启动后模组自动读取配置文件中的后端地址和服务器标识。
+        </p>
+        <p>
+          <span class="text-cyan-400 font-medium">② 心跳检测</span> — 模组每 30 秒向后端发送一次心跳请求，携带服务器名称、地址、TPS、MSPT、游戏模式（生存/创造等）、模组加载器信息。后端收到心跳后更新服务器状态，若超过 90 秒未收到心跳则判定服务器离线。
+        </p>
+        <p>
+          <span class="text-cyan-400 font-medium">③ 事件上报</span> — 玩家加入、离开或死亡时，模组通过异步 HTTP 请求立即通知后端，后端记录事件并维护对应的 Session（会话开始/结束）。
+        </p>
+        <p>
+          <span class="text-cyan-400 font-medium">④ 指令队列</span> — 在网页端控制台输入指令后，指令暂存在后端内存队列中。模组下一次心跳时拉取待处理指令，在游戏内以玩家权限执行。
+        </p>
+        <p>
+          <span class="text-cyan-400 font-medium">⑤ 聊天同步</span> — 模组监听玩家聊天事件（<code class="text-gray-300">ServerChatEvent</code>），将玩家名和消息内容异步上报后端。网页端每 5 秒轮询获取最新聊天记录，与指令历史合并按时间排序展示。
+        </p>
+        <p>
+          <span class="text-cyan-400 font-medium">⑥ 前端轮询</span> — 网页仪表盘每 5 秒刷新服务器列表和实时事件，服务器详情页同步刷新状态、指令历史和聊天记录。所有 API 通信均通过 HTTPS 加密。
+        </p>
+      </div>
+    </GlowCard>
+
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
       <GlowCard cardClass="card p-4 sm:p-6" hoverClass="">
         <h3 class="text-base font-semibold mb-3 text-amber-400 flex items-center gap-2">
