@@ -1,0 +1,61 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Server {
+  id             String    @id @default(uuid())
+  name           String
+  address        String
+  status         String    @default("offline")
+  note           String    @default("")
+  lastHeartbeat  DateTime?
+  tps            Float?
+  mtps           Float?
+  firstSeen      DateTime  @default(now())
+  sessions       Session[]
+  events         Event[]
+}
+
+model Player {
+  uuid      String    @id
+  name      String
+  firstSeen DateTime  @default(now())
+  lastSeen  DateTime  @default(now())
+  sessions  Session[]
+  events    Event[]
+}
+
+model Session {
+  id              String   @id @default(uuid())
+  playerUuid      String
+  serverId        String
+  joinTime        DateTime
+  leaveTime       DateTime?
+  durationSeconds Int?
+  player          Player   @relation(fields: [playerUuid], references: [uuid])
+  server          Server   @relation(fields: [serverId], references: [id])
+
+  @@index([playerUuid])
+  @@index([serverId])
+  @@index([joinTime])
+}
+
+model Event {
+  id        String   @id @default(uuid())
+  playerUuid String
+  serverId  String
+  type      String
+  timestamp DateTime @default(now())
+  player    Player   @relation(fields: [playerUuid], references: [uuid])
+  server    Server   @relation(fields: [serverId], references: [id])
+
+  @@index([playerUuid])
+  @@index([serverId])
+  @@index([timestamp])
+  @@index([type])
+}

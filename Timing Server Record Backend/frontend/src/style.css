@@ -1,0 +1,163 @@
+@import "tailwindcss";
+
+/* ── 主题变量 (默认为深色) ── */
+:root {
+  --bg-body: #030712;
+  --bg-glow-1: rgba(120, 119, 198, 0.15);
+  --bg-glow-2: rgba(251, 191, 36, 0.08);
+  --grid-line: rgba(255, 255, 255, 0.02);
+  --grid-dot: rgba(255, 255, 255, 0.025);
+  --card-bg: rgba(17, 24, 39, 0.6);
+  --card-stat-bg: linear-gradient(135deg, rgba(17, 24, 39, 0.7), rgba(31, 41, 55, 0.4));
+  --card-list-bg: rgba(17, 24, 39, 0.4);
+  --card-border: rgba(75, 85, 99, 0.3);
+  --card-border-stat: rgba(75, 85, 99, 0.25);
+  --card-border-list: rgba(75, 85, 99, 0.2);
+  --card-shadow: rgba(0, 0, 0, 0.4);
+  --header-bg: rgba(3, 7, 18, 0.4);
+  --header-border: rgba(75, 85, 99, 0.5);
+  --text-muted: #6b7280;
+
+  /* 深色背景用浅色字 */
+  --color-gray-50: #f9fafb;
+  --color-gray-100: #f3f4f6;
+  --color-gray-200: #e5e7eb;
+  --color-gray-300: #d1d5db;
+  --color-gray-400: #9ca3af;
+  --color-gray-500: #9ca3af;
+  --color-gray-600: #8892a0;
+  --color-gray-700: #6b7280;
+  --color-gray-800: #4b5563;
+  --color-gray-900: #374151;
+  --color-gray-950: #1f2937;
+}
+
+/* ── 浅色主题 ── */
+[data-theme="light"] {
+  --bg-body: #f3f4f6;
+  --bg-glow-1: rgba(120, 119, 198, 0.08);
+  --bg-glow-2: rgba(251, 191, 36, 0.05);
+  --grid-line: rgba(0, 0, 0, 0.03);
+  --grid-dot: rgba(0, 0, 0, 0.025);
+  --card-bg: rgba(255, 255, 255, 0.7);
+  --card-stat-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.8), rgba(243, 244, 246, 0.5));
+  --card-list-bg: rgba(255, 255, 255, 0.5);
+  --card-border: rgba(156, 163, 175, 0.3);
+  --card-border-stat: rgba(156, 163, 175, 0.25);
+  --card-border-list: rgba(156, 163, 175, 0.2);
+  --card-shadow: rgba(0, 0, 0, 0.1);
+  --header-bg: rgba(255, 255, 255, 0.6);
+  --header-border: rgba(156, 163, 175, 0.3);
+  --text-muted: #9ca3af;
+
+  /* 覆盖 Tailwind 灰色调色板 — 浅色背景用深色字 */
+  --color-gray-50: #f9fafb;
+  --color-gray-100: #f3f4f6;
+  --color-gray-200: #374151;
+  --color-gray-300: #4b5563;
+  --color-gray-400: #6b7280;
+  --color-gray-500: #6b7280;
+  --color-gray-600: #4b5563;
+  --color-gray-700: #374151;
+  --color-gray-800: #f3f4f6;
+  --color-gray-900: #f9fafb;
+  --color-gray-950: #ffffff;
+}
+
+/* ── 主题平滑过渡 ── */
+*,
+*::before,
+*::after {
+  transition: background-color 0.35s ease,
+              border-color 0.35s ease,
+              box-shadow 0.35s ease;
+}
+
+/* ── 背景纹理 ── */
+body {
+  background:
+    radial-gradient(ellipse 80% 50% at 50% -20%, var(--bg-glow-1), transparent),
+    radial-gradient(ellipse 60% 40% at 80% 80%, var(--bg-glow-2), transparent),
+    var(--bg-body);
+  background-attachment: fixed;
+}
+
+/* 网格 */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(var(--grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+  background-size: 56px 56px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* 圆点 + 噪点纹理 */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background-image:
+    radial-gradient(circle, var(--grid-dot) 1px, transparent 1px),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.35'/%3E%3C/svg%3E");
+  background-size: 28px 28px, 300px 300px;
+  background-blend-mode: normal, overlay;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.5;
+}
+
+#app {
+  position: relative;
+  z-index: 1;
+}
+
+/* ── 卡片 ── */
+.card {
+  background: var(--card-bg);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+}
+.card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 40px var(--card-shadow);
+}
+
+.card-stat {
+  background: var(--card-stat-bg);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--card-border-stat);
+  border-radius: 12px;
+}
+
+.card-list {
+  background: var(--card-list-bg);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--card-border-list);
+  border-radius: 12px;
+  overflow-x: auto;
+}
+
+/* ── 动画 ── */
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+.animate-fade-in { animation: fadeIn 0.5s ease-out both; }
+.animate-fade-in-d1 { animation: fadeIn 0.5s ease-out 0.1s both; }
+.animate-fade-in-d2 { animation: fadeIn 0.5s ease-out 0.2s both; }
+.animate-fade-in-d3 { animation: fadeIn 0.5s ease-out 0.3s both; }
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 4px rgba(52, 211, 153, 0.4); }
+  50% { box-shadow: 0 0 12px rgba(52, 211, 153, 0.8); }
+}
+.live-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #34d399;
+  animation: pulse-glow 1.5s ease-in-out infinite;
+}
