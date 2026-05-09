@@ -48,7 +48,16 @@ const patchedSchema = originalSchema.replace(/env\("DATABASE_PROVIDER"\)/, `"${p
 writeFileSync(schemaPath, patchedSchema);
 
 try {
-  execSync("npx prisma generate", { stdio: "inherit", cwd: __dirname });
+  // Only generate if Prisma client doesn't exist yet (skip if already built)
+  const prismaClientDir = resolve(__dirname, "node_modules", ".prisma", "client");
+  const needsGenerate = !existsSync(resolve(prismaClientDir, "query_engine-windows.dll.node")) &&
+                        !existsSync(resolve(prismaClientDir, "libquery_engine-linux.so.node")) &&
+                        !existsSync(resolve(prismaClientDir, "libquery_engine-darwin.dylib.node"));
+
+  if (needsGenerate) {
+    execSync("npx prisma generate", { stdio: "inherit", cwd: __dirname });
+  }
+
   execSync("npx prisma db push --accept-data-loss", { stdio: "inherit", cwd: __dirname });
 } catch {
   writeFileSync(schemaPath, originalSchema);
