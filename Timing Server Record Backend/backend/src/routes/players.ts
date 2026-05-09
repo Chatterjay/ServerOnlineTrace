@@ -3,6 +3,8 @@ import prisma from "../prisma.js";
 
 const router = Router();
 
+const SH_OFFSET = 8 * 60 * 60 * 1000;
+
 // Get player count
 router.get("/count", async (_req: Request, res: Response) => {
   const count = await prisma.player.count();
@@ -46,71 +48,91 @@ router.get("/:uuid", async (req: Request, res: Response) => {
 // Daily play time (last N days)
 router.get("/:uuid/stats/daily", async (req: Request, res: Response) => {
   const days = parseInt(req.query.days as string) || 30;
-  const rows = await prisma.$queryRawUnsafe<{ date: string; totalSeconds: bigint; sessionCount: bigint }[]>(
-    `SELECT DATE("joinTime" AT TIME ZONE 'Asia/Shanghai')::text as date,
-            COALESCE(SUM("durationSeconds"), 0) as "totalSeconds",
-            COUNT(*) as "sessionCount"
-     FROM "Session"
-     WHERE "playerUuid" = $1
-       AND "joinTime" >= NOW() - INTERVAL '${days} days'
-       AND "durationSeconds" IS NOT NULL
-     GROUP BY DATE("joinTime" AT TIME ZONE 'Asia/Shanghai')
-     ORDER BY date`,
-    req.params.uuid
-  );
-  res.json(rows.map(r => ({ date: r.date, totalSeconds: Number(r.totalSeconds), sessionCount: Number(r.sessionCount) })));
+  const cutoff = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
+  const sessions = await prisma.session.findMany({
+    where: { playerUuid: req.params.uuid, joinTime: { gte: cutoff }, durationSeconds: { not: null } },
+    select: { joinTime: true, durationSeconds: true },
+  });
+  const dailyMap = new Map<string, { totalSeconds: number; sessionCount: number }>();
+  for (const s of sessions) {
+    const sh = new Date(s.joinTime.getTime() + SH_OFFSET);
+    const key = `${sh.getUTCFullYear()}-${String(sh.getUTCMonth() + 1).padStart(2, "0")}-${String(sh.getUTCDate()).padStart(2, "0")}`;
+    const e = dailyMap.get(key) || { totalSeconds: 0, sessionCount: 0 };
+    e.totalSeconds += s.durationSeconds!;
+    e.sessionCount++;
+    dailyMap.set(key, e);
+  }
+  const rows = [...dailyMap.entries()].sort(([a], [b]) => a.localeCompare(b))
+    .map(([date, v]) => ({ date, totalSeconds: v.totalSeconds, sessionCount: v.sessionCount }));
+  res.json(rows);
 });
 
 // Weekly play time (last N weeks)
 router.get("/:uuid/stats/weekly", async (req: Request, res: Response) => {
   const weeks = parseInt(req.query.weeks as string) || 12;
-  const rows = await prisma.$queryRawUnsafe<{ date: string; totalSeconds: bigint; sessionCount: bigint }[]>(
-    `SELECT DATE_TRUNC('week', "joinTime" AT TIME ZONE 'Asia/Shanghai')::date as date,
-            COALESCE(SUM("durationSeconds"), 0) as "totalSeconds",
-            COUNT(*) as "sessionCount"
-     FROM "Session"
-     WHERE "playerUuid" = $1
-       AND "joinTime" >= NOW() - INTERVAL '${weeks} weeks'
-       AND "durationSeconds" IS NOT NULL
-     GROUP BY DATE_TRUNC('week', "joinTime" AT TIME ZONE 'Asia/Shanghai')
-     ORDER BY date`,
-    req.params.uuid
-  );
-  res.json(rows.map(r => ({ date: r.date, totalSeconds: Number(r.totalSeconds), sessionCount: Number(r.sessionCount) })));
+  const cutoff = new Date(Date.now() - weeks * 7 * 24 * 60 * 60 * 1000);
+  const sessions = await prisma.session.findMany({
+    where: { playerUuid: req.params.uuid, joinTime: { gte: cutoff }, durationSeconds: { not: null } },
+    select: { joinTime: true, durationSeconds: true },
+  });
+  const weekMap = new Map<string, { totalSeconds: number; sessionCount: number }>();
+  for (const s of sessions) {
+    const sh = new Date(s.joinTime.getTime() + SH_OFFSET);
+    const day = sh.getUTCDay();
+    const diff = day === 0 ? -6 : 1 - day;
+    const monday = new Date(sh);
+    monday.setUTCDate(monday.getUTCDate() + diff);
+    const key = `${monday.getUTCFullYear()}-${String(monday.getUTCMonth() + 1).padStart(2, "0")}-${String(monday.getUTCDate()).padStart(2, "0")}`;
+    const e = weekMap.get(key) || { totalSeconds: 0, sessionCount: 0 };
+    e.totalSeconds += s.durationSeconds!;
+    e.sessionCount++;
+    weekMap.set(key, e);
+  }
+  const rows = [...weekMap.entries()].sort(([a], [b]) => a.localeCompare(b))
+    .map(([date, v]) => ({ date, totalSeconds: v.totalSeconds, sessionCount: v.sessionCount }));
+  res.json(rows);
 });
 
 // Hourly heatmap data (last 30 days)
 router.get("/:uuid/stats/hourly", async (req: Request, res: Response) => {
-  const rows = await prisma.$queryRawUnsafe<{ hour: number; totalSeconds: bigint; sessionCount: bigint }[]>(
-    `SELECT EXTRACT(HOUR FROM "joinTime" AT TIME ZONE 'Asia/Shanghai')::int as hour,
-            COALESCE(SUM("durationSeconds"), 0) as "totalSeconds",
-            COUNT(*) as "sessionCount"
-     FROM "Session"
-     WHERE "playerUuid" = $1
-       AND "joinTime" >= NOW() - INTERVAL '30 days'
-       AND "durationSeconds" IS NOT NULL
-     GROUP BY EXTRACT(HOUR FROM "joinTime" AT TIME ZONE 'Asia/Shanghai')
-     ORDER BY hour`,
-    req.params.uuid
-  );
-  res.json(rows.map(r => ({ hour: Number(r.hour), totalSeconds: Number(r.totalSeconds), sessionCount: Number(r.sessionCount) })));
+  const cutoff = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+  const sessions = await prisma.session.findMany({
+    where: { playerUuid: req.params.uuid, joinTime: { gte: cutoff }, durationSeconds: { not: null } },
+    select: { joinTime: true, durationSeconds: true },
+  });
+  const hourlyMap = new Map<number, { totalSeconds: number; sessionCount: number }>();
+  for (const s of sessions) {
+    const sh = new Date(s.joinTime.getTime() + SH_OFFSET);
+    const hour = sh.getUTCHours();
+    const e = hourlyMap.get(hour) || { totalSeconds: 0, sessionCount: 0 };
+    e.totalSeconds += s.durationSeconds!;
+    e.sessionCount++;
+    hourlyMap.set(hour, e);
+  }
+  const rows = [...hourlyMap.entries()].sort(([a], [b]) => a - b)
+    .map(([hour, v]) => ({ hour, totalSeconds: v.totalSeconds, sessionCount: v.sessionCount }));
+  res.json(rows);
 });
 
 // Weekday distribution (last 30 days)
 router.get("/:uuid/stats/weekday", async (req: Request, res: Response) => {
-  const rows = await prisma.$queryRawUnsafe<{ day: number; totalSeconds: bigint; sessionCount: bigint }[]>(
-    `SELECT EXTRACT(DOW FROM "joinTime" AT TIME ZONE 'Asia/Shanghai')::int as day,
-            COALESCE(SUM("durationSeconds"), 0) as "totalSeconds",
-            COUNT(*) as "sessionCount"
-     FROM "Session"
-     WHERE "playerUuid" = $1
-       AND "joinTime" >= NOW() - INTERVAL '30 days'
-       AND "durationSeconds" IS NOT NULL
-     GROUP BY EXTRACT(DOW FROM "joinTime" AT TIME ZONE 'Asia/Shanghai')
-     ORDER BY day`,
-    req.params.uuid
-  );
-  res.json(rows.map(r => ({ day: Number(r.day), totalSeconds: Number(r.totalSeconds), sessionCount: Number(r.sessionCount) })));
+  const cutoff = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+  const sessions = await prisma.session.findMany({
+    where: { playerUuid: req.params.uuid, joinTime: { gte: cutoff }, durationSeconds: { not: null } },
+    select: { joinTime: true, durationSeconds: true },
+  });
+  const weekdayMap = new Map<number, { totalSeconds: number; sessionCount: number }>();
+  for (const s of sessions) {
+    const sh = new Date(s.joinTime.getTime() + SH_OFFSET);
+    const day = sh.getUTCDay();
+    const e = weekdayMap.get(day) || { totalSeconds: 0, sessionCount: 0 };
+    e.totalSeconds += s.durationSeconds!;
+    e.sessionCount++;
+    weekdayMap.set(day, e);
+  }
+  const rows = [...weekdayMap.entries()].sort(([a], [b]) => a - b)
+    .map(([day, v]) => ({ day, totalSeconds: v.totalSeconds, sessionCount: v.sessionCount }));
+  res.json(rows);
 });
 
 export default router;
