@@ -14,7 +14,7 @@ public class Config
 
     private static final ModConfigSpec.ConfigValue<String> BACKEND_URL = BUILDER
             .comment("TraceSession web backend URL (use https:// for SSL)")
-            .define("backendUrl", "https://localhost:27891");
+            .define("backendUrl", "http://localhost:27890");
 
     private static final ModConfigSpec.ConfigValue<String> SERVER_ID = BUILDER
             .comment("Unique server identifier (auto-generated if empty)")

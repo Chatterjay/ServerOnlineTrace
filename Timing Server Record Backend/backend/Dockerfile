@@ -9,10 +9,10 @@ RUN npm ci
 
 COPY prisma ./prisma
 
-# Build-time defaults for prisma generate (overridden at runtime by env)
-ENV DATABASE_PROVIDER=sqlite
-ENV DATABASE_URL=file:./data/tracesession.db
-RUN npx prisma generate
+# Patch schema.prisma: replace env() with hardcoded provider for build
+RUN sed -i 's/env("DATABASE_PROVIDER")/"sqlite"/' prisma/schema.prisma && \
+    npx prisma generate && \
+    sed -i 's/"sqlite"/env("DATABASE_PROVIDER")/' prisma/schema.prisma
 
 COPY . .
 

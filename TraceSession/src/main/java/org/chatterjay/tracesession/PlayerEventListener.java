@@ -18,7 +18,7 @@ public class PlayerEventListener
         var server = player.getServer();
         if (server != null)
         {
-            var msg = Component.literal("§e" + player.getName().getString() + " §7(" + player.getUUID() + ")§e 加入了游戏");
+            var msg = Component.literal("§e" + player.getName().getString() + "§e 加入了游戏");
             server.getPlayerList().broadcastSystemMessage(msg, false);
         }
         LOGGER.info("Player joined: {} (UUID: {})", player.getName().getString(), player.getUUID());
@@ -32,7 +32,7 @@ public class PlayerEventListener
         var server = player.getServer();
         if (server != null)
         {
-            var msg = Component.literal("§e" + player.getName().getString() + " §7(" + player.getUUID() + ")§e 离开了游戏");
+            var msg = Component.literal("§e" + player.getName().getString() + "§e 离开了游戏");
             server.getPlayerList().broadcastSystemMessage(msg, false);
         }
         LOGGER.info("Player left: {} (UUID: {})", player.getName().getString(), player.getUUID());

@@ -92,8 +92,11 @@
 
             <div class="space-y-1">
               <p class="text-gray-300 text-xs font-medium">④ 重启后端</p>
-              <p class="text-gray-400 text-xs">在 <code class="text-gray-300">Timing Server Record Backend/backend/</code> 目录下重新执行：</p>
-              <pre class="bg-gray-900/60 rounded px-2 py-1.5 text-xs text-gray-300 overflow-x-auto">npm start</pre>
+              <p class="text-gray-400 text-xs">关掉当前后端（<span class="text-gray-300">Ctrl+C</span>），然后任选一种方式启动：</p>
+              <ul class="text-gray-400 text-xs space-y-0.5 list-disc list-inside">
+                <li>双击项目根目录的 <code class="text-gray-300">start.bat</code>（Windows）或 <code class="text-gray-300">start.sh</code>（Mac/Linux）</li>
+                <li>或在 <code class="text-gray-300">Timing Server Record Backend/backend/</code> 目录下执行 <code class="text-gray-300">npm start</code></li>
+              </ul>
               <p class="text-gray-500 text-xs">后端启动时会自动检测 <code class="text-gray-300">DATABASE_URL</code> 并切换到 PostgreSQL，自动同步数据库表结构。</p>
             </div>
 
@@ -116,8 +119,11 @@
               </ul>
             </div>
             <div class="space-y-1">
-              <p class="text-gray-400 text-xs">在 <code class="text-gray-300">Timing Server Record Backend/backend/</code> 目录下重启后端：</p>
-              <pre class="bg-gray-900/60 rounded px-2 py-1.5 text-xs text-gray-300 overflow-x-auto">npm start</pre>
+              <p class="text-gray-400 text-xs">关掉当前后端（<span class="text-gray-300">Ctrl+C</span>），然后任选一种方式重启：</p>
+              <ul class="text-gray-400 text-xs space-y-0.5 list-disc list-inside">
+                <li>双击项目根目录的 <code class="text-gray-300">start.bat</code>（Windows）或 <code class="text-gray-300">start.sh</code>（Mac/Linux）</li>
+                <li>或在 <code class="text-gray-300">Timing Server Record Backend/backend/</code> 目录下执行 <code class="text-gray-300">npm start</code></li>
+              </ul>
               <p class="text-gray-500 text-xs">启动脚本检测到 <code class="text-gray-300">DATABASE_URL</code> 为空后，会自动使用 SQLite，在 <code class="text-gray-300">backend/data/tracesession.db</code> 创建数据库文件。</p>
             </div>
             <div class="space-y-1">

@@ -38,7 +38,19 @@ app.get("/api/db-type", (_req, res) => {
   res.json({ type, file: type === "SQLite" ? "data/tracesession.db" : null });
 });
 
-// ── HTTP server (backward compat, also redirects to HTTPS) ──
+// ── Serve frontend static files (production build) ──
+const distPath = path.join(__dirname, "../../frontend/dist");
+if (fs.existsSync(distPath)) {
+  app.use(express.static(distPath));
+  app.get(/^\/(?!api).*/, (_req, res) => {
+    res.sendFile(path.join(distPath, "index.html"));
+  });
+  console.log(`Frontend served from ${distPath}`);
+} else {
+  console.log("Frontend build not found, API only");
+}
+
+// ── HTTP server ──
 app.listen(HTTP_PORT, () => {
   console.log(`Backend (HTTP) running at http://localhost:${HTTP_PORT}`);
 });
@@ -46,11 +58,15 @@ app.listen(HTTP_PORT, () => {
 // ── HTTPS server ──
 const sslPath = path.join(__dirname, "..", "ssl");
 if (fs.existsSync(path.join(sslPath, "key.pem")) && fs.existsSync(path.join(sslPath, "cert.pem"))) {
-  const key = fs.readFileSync(path.join(sslPath, "key.pem"));
-  const cert = fs.readFileSync(path.join(sslPath, "cert.pem"));
-  https.createServer({ key, cert }, app).listen(HTTPS_PORT, () => {
-    console.log(`Backend (HTTPS) running at https://localhost:${HTTPS_PORT}`);
-  });
+  try {
+    const key = fs.readFileSync(path.join(sslPath, "key.pem"));
+    const cert = fs.readFileSync(path.join(sslPath, "cert.pem"));
+    https.createServer({ key, cert }, app).listen(HTTPS_PORT, () => {
+      console.log(`Backend (HTTPS) running at https://localhost:${HTTPS_PORT}`);
+    });
+  } catch (err) {
+    console.log("Failed to start HTTPS server:", (err as Error).message);
+  }
 } else {
   console.log("SSL cert not found, HTTPS not available");
 }
