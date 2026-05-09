@@ -6,8 +6,8 @@
   "scripts": {
     "dev": "tsx watch src/index.ts",
     "start": "node startup.mjs",
+    "build": "tsc",
     "db:generate": "prisma generate",
-    "db:migrate": "prisma migrate deploy",
     "db:push": "prisma db push"
   },
   "dependencies": {

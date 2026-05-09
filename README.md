@@ -33,6 +33,51 @@ start.bat
 
 将编译好的 `tracesession.jar` 放入 Minecraft 服务器 `mods/` 目录，启动服务器。模组自动连接后端开始上报数据。
 
+## 生产环境部署
+
+### 编译后端
+
+```bash
+cd Timing\ Server\ Record\ Backend/backend
+npm run build
+```
+
+编译后 `dist/` 目录生成纯 JS 文件，`startup.mjs` 会自动使用 `node dist/index.js` 运行，无需 tsx。
+
+### 切换 PostgreSQL
+
+编辑 `backend/.env`，设置数据库连接：
+
+```
+DATABASE_URL=postgresql://用户:密码@localhost:5432/tracesession
+```
+
+重启后端即可。详细切换步骤见网页端「关于」页面。
+
+### 进程管理（PM2）
+
+```bash
+# 安装 PM2
+npm install -g pm2
+
+# 启动（使用项目根目录的配置文件）
+pm2 start ecosystem.config.cjs
+
+# 保存进程列表（开机自启）
+pm2 save
+pm2 startup
+```
+
+### SSL 证书
+
+```bash
+cd Timing\ Server\ Record\ Backend/backend
+mkdir -p ssl
+openssl req -x509 -newkey rsa:2048 -keyout ssl/key.pem -out ssl/cert.pem -days 3650 -nodes -subj "/CN=localhost"
+```
+
+重启后端后自动启用 HTTPS。
+
 ## 端口
 
 | 端口 | 用途 |

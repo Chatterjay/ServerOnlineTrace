@@ -65,5 +65,10 @@ writeFileSync(schemaPath, originalSchema);
 // The backend serves HTTP on port 27890 which works without certs.
 
 // Start backend
-console.log("\nStarting TraceSession backend...\n");
-execSync("npx tsx src/index.ts", { stdio: "inherit", cwd: __dirname });
+// Use compiled JS if available (production build), otherwise tsx (development)
+const entry = existsSync(resolve(__dirname, "dist/index.js"))
+  ? "node dist/index.js"
+  : "npx tsx src/index.ts";
+
+console.log(`\nStarting TraceSession backend (${entry})...\n`);
+execSync(entry, { stdio: "inherit", cwd: __dirname });
