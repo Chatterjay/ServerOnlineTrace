@@ -119,29 +119,49 @@
           <path d="M2 3h12v10H2zM5 7h6M5 9.5h4" stroke-linecap="round" />
         </svg>
         服务器控制台
-        <span class="text-xs text-gray-600 font-normal">指令等级 LV3</span>
+        <span class="text-xs text-gray-600 font-normal">玩家等级 · 可输入文字聊天或 / 开头执行指令</span>
       </h3>
       <div class="terminal-box">
         <div class="terminal-output" ref="terminalRef">
-          <div v-for="cmd in commandHistory" :key="cmd.id" class="terminal-line">
-            <span class="terminal-prompt">&gt;</span>
-            <span class="terminal-cmd">{{ cmd.command }}</span>
-            <span class="terminal-time">{{ new Date(cmd.timestamp).toLocaleTimeString() }}</span>
+          <div v-for="entry in terminalEntries" :key="entry.id" class="terminal-line">
+            <template v-if="entry.type === 'command'">
+              <span class="terminal-prompt">&gt;</span>
+              <span class="terminal-cmd">{{ entry.text }}</span>
+            </template>
+            <template v-else>
+              <span class="text-green-400/80 font-medium">{{ entry.playerName }}</span>
+              <span class="text-gray-400">: {{ entry.text }}</span>
+            </template>
+            <span class="terminal-time">{{ entry.timestamp.toLocaleTimeString() }}</span>
           </div>
-          <div v-if="commandHistory.length === 0" class="terminal-line text-gray-600">暂无指令记录</div>
+          <div v-if="terminalEntries.length === 0" class="terminal-line text-gray-600">暂无聊天或指令记录</div>
         </div>
         <form @submit.prevent="doSendCommand" class="terminal-input-row">
           <span class="terminal-prompt">&gt;</span>
           <input
             ref="inputRef"
             v-model="commandText"
-            placeholder="输入指令..."
+            placeholder="聊天或输入指令..."
             class="terminal-input"
             :disabled="sending"
           />
           <button type="submit" :disabled="!commandText.trim() || sending"
             class="terminal-btn">发送</button>
         </form>
+        <button @click="showHints = !showHints"
+          class="w-full text-xs py-1.5 text-center transition-colors border-t border-gray-700/30"
+          :class="showHints ? 'text-amber-500/70' : 'text-gray-600 hover:text-gray-500'">
+          {{ showHints ? '收起指令提示 ▲' : '指令提示 ▼' }}
+        </button>
+        <div v-show="showHints" class="px-4 py-3 space-y-1.5 text-sm">
+          <div class="text-gray-400 font-medium mb-1.5">直接输入文字 → 以 §7[网站] §f前缀广播聊天</div>
+          <div class="flex flex-wrap gap-x-6 gap-y-1.5 text-gray-400">
+            <span><code class="text-gray-300">/msg &lt;玩家&gt; &lt;内容&gt;</code> 私聊</span>
+            <span><code class="text-gray-300">/list</code> 在线列表</span>
+            <span><code class="text-gray-300">/help</code> 帮助</span>
+            <span><code class="text-gray-300">/me &lt;动作&gt;</code> 表情</span>
+          </div>
+        </div>
       </div>
     </GlowCard>
   </div>
@@ -165,9 +185,9 @@ import GlowCard from "../components/GlowCard.vue";
 import {
   fetchServer, updateServerNote, fetchServerDailyStats,
   fetchServerHourlyStats, fetchServerWeekdayStats, fetchServerTopPlayers,
-  sendCommand, fetchCommands,
+  sendCommand, fetchCommands, fetchChatMessages,
   type Server, type StatsPoint, type HourlyStats, type WeekdayStats,
-  type TopPlayerStats, type QueuedCommand,
+  type TopPlayerStats, type QueuedCommand, type ChatMessage,
 } from "../api/index.js";
 
 use([CanvasRenderer, BarChart, LineChart, PieChart, GridComponent, TooltipComponent, LegendComponent]);
@@ -270,14 +290,34 @@ const gameModeLabel = (mode: string) => {
 
 const commandText = ref("");
 const commandHistory = ref<QueuedCommand[]>([]);
+const chatMessages = ref<ChatMessage[]>([]);
 const sending = ref(false);
+const showHints = ref(false);
 const terminalRef = ref<HTMLElement | null>(null);
 const inputRef = ref<HTMLInputElement | null>(null);
+
+const terminalEntries = computed(() => {
+  const entries: { id: string; type: "command" | "chat"; text: string; playerName?: string; timestamp: Date }[] = [];
+  for (const cmd of commandHistory.value) {
+    entries.push({ id: cmd.id, type: "command", text: cmd.command, timestamp: new Date(cmd.timestamp) });
+  }
+  for (const chat of chatMessages.value) {
+    entries.push({ id: chat.id, type: "chat", text: chat.message, playerName: chat.playerName, timestamp: new Date(chat.timestamp) });
+  }
+  entries.sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
+  return entries;
+});
 
 async function loadCommands() {
   const id = route.params.id as string;
   if (!id) return;
   commandHistory.value = await fetchCommands(id);
+}
+
+async function loadChat() {
+  const id = route.params.id as string;
+  if (!id) return;
+  chatMessages.value = await fetchChatMessages(id);
 }
 
 function scrollTerminal() {
@@ -355,7 +395,12 @@ onMounted(async () => {
     fetchServerTopPlayers(id),
   ]);
   await loadCommands();
-  cmdTimer = setInterval(loadCommands, 5000);
+  await loadChat();
+  cmdTimer = setInterval(() => {
+    load();
+    loadCommands();
+    loadChat();
+  }, 5000);
 });
 
 onUnmounted(() => {

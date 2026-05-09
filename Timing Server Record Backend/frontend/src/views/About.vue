@@ -20,7 +20,7 @@
           <li class="flex gap-2"><span class="text-amber-400 shrink-0">·</span>多服务器统一监控，实时显示在线状态、TPS、MSPT</li>
           <li class="flex gap-2"><span class="text-amber-400 shrink-0">·</span>自动检测服务器离线（90 秒无心跳）并关闭残留会话</li>
           <li class="flex gap-2"><span class="text-amber-400 shrink-0">·</span>支持为服务器添加备注标识</li>
-          <li class="flex gap-2"><span class="text-amber-400 shrink-0">·</span>远程指令控制台，支持以 OP LV3 权限执行指令</li>
+          <li class="flex gap-2"><span class="text-amber-400 shrink-0">·</span>远程控制台，支持文字聊天广播和玩家等级指令执行</li>
           <li class="flex gap-2"><span class="text-amber-400 shrink-0">·</span>显示游戏模式、模组加载器信息</li>
           <li class="flex gap-2"><span class="text-amber-400 shrink-0">·</span>30 天数据自动清理</li>
         </ul>

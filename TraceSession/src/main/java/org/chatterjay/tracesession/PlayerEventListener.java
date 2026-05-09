@@ -3,6 +3,7 @@ package org.chatterjay.tracesession;
 import com.mojang.logging.LogUtils;
 import net.minecraft.network.chat.Component;
 import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.neoforge.event.ServerChatEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import org.slf4j.Logger;
 
@@ -47,5 +48,14 @@ public class PlayerEventListener
             Tracesession.getApiClient().sendEvent(Config.serverId, player.getUUID().toString(), player.getName().getString(), "death");
             LOGGER.info("Player died: {} (UUID: {})", player.getName().getString(), player.getUUID());
         }
+    }
+
+    @SubscribeEvent
+    public void onPlayerChat(ServerChatEvent event)
+    {
+        String playerName = event.getUsername();
+        String message = event.getMessage().getString();
+        Tracesession.getApiClient().sendChat(Config.serverId, playerName, message);
+        LOGGER.info("Player chat: {}: {}", playerName, message);
     }
 }

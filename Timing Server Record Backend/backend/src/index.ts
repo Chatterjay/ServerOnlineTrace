@@ -9,6 +9,7 @@ import serversRouter from "./routes/servers.js";
 import playersRouter from "./routes/players.js";
 import eventsRouter from "./routes/events.js";
 import commandsRouter from "./routes/commands.js";
+import chatRouter from "./routes/chat.js";
 
 const app = express();
 const HTTP_PORT = parseInt(process.env.HTTP_PORT || "4560");
@@ -23,6 +24,7 @@ app.use("/api/servers", serversRouter);
 app.use("/api/players", playersRouter);
 app.use("/api/events", eventsRouter);
 app.use("/api/servers", commandsRouter);
+app.use("/api/servers", chatRouter);
 
 // Health check
 app.get("/api/health", (_req, res) => {

@@ -76,14 +76,20 @@ public class Tracesession
                             for (var elem : commands)
                             {
                                 var cmdObj = elem.getAsJsonObject();
-                                String commandText = cmdObj.get("command").getAsString();
+                                String text = cmdObj.get("command").getAsString();
                                 minecraftServer.execute(() -> {
                                     try {
-                                        var source = minecraftServer.createCommandSourceStack().withPermission(3);
-                                        minecraftServer.getCommands().performPrefixedCommand(source, commandText);
-                                        LOGGER.info("Executed command: {}", commandText);
+                                        if (text.startsWith("/")) {
+                                            var source = minecraftServer.createCommandSourceStack().withPermission(0);
+                                            minecraftServer.getCommands().performPrefixedCommand(source, text);
+                                            LOGGER.info("Executed command: {}", text);
+                                        } else {
+                                            var msg = net.minecraft.network.chat.Component.literal("§7[网站] §f" + text);
+                                            minecraftServer.getPlayerList().broadcastSystemMessage(msg, false);
+                                            LOGGER.info("Broadcast chat: {}", text);
+                                        }
                                     } catch (Exception ex) {
-                                        LOGGER.error("Failed to execute command '{}': {}", commandText, ex.getMessage());
+                                        LOGGER.error("Failed to execute '{}': {}", text, ex.getMessage());
                                     }
                                 });
                             }

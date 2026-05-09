@@ -181,3 +181,16 @@ export async function fetchCommands(serverId: string): Promise<QueuedCommand[]> 
   return res.json();
 }
 
+export interface ChatMessage {
+  id: string;
+  serverId: string;
+  playerName: string;
+  message: string;
+  timestamp: string;
+}
+
+export async function fetchChatMessages(serverId: string): Promise<ChatMessage[]> {
+  const res = await fetch(`${BASE}/servers/${serverId}/chat`);
+  return res.json();
+}
+

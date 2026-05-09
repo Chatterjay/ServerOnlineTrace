@@ -134,4 +134,23 @@ public class ApiClient
         client.sendAsync(request, HttpResponse.BodyHandlers.ofString());
         LOGGER.info("Offline heartbeat sent for {}", serverName);
     }
+
+    public void sendChat(String serverId, String playerName, String message)
+    {
+        var json = new JsonObject();
+        json.addProperty("playerName", playerName);
+        json.addProperty("message", message);
+
+        var request = HttpRequest.newBuilder()
+                .uri(URI.create(baseUrl + "/api/servers/" + serverId + "/chat"))
+                .header("Content-Type", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(json.toString()))
+                .build();
+
+        client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
+                .exceptionally(e -> {
+                    LOGGER.error("Failed to send chat: {}", e.getMessage());
+                    return null;
+                });
+    }
 }
