@@ -16,6 +16,8 @@ model Server {
   lastHeartbeat  DateTime?
   tps            Float?
   mtps           Float?
+  gameMode       String?
+  modLoader      String?
   firstSeen      DateTime  @default(now())
   sessions       Session[]
   events         Event[]

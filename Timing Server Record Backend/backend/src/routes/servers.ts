@@ -1,5 +1,6 @@
 import { Router, Request, Response } from "express";
 import prisma from "../prisma.js";
+import { takePending } from "./commands.js";
 
 const router = Router();
 
@@ -20,12 +21,13 @@ async function closeServerSessions(serverId: string) {
   if (openSessions.length === 0) return;
 
   const now = new Date();
-  const durationSeconds = 0;
-
-  await prisma.session.updateMany({
-    where: { id: { in: openSessions.map(s => s.id) } },
-    data: { leaveTime: now, durationSeconds },
-  });
+  for (const s of openSessions) {
+    const duration = Math.floor((now.getTime() - s.joinTime.getTime()) / 1000);
+    await prisma.session.update({
+      where: { id: s.id },
+      data: { leaveTime: now, durationSeconds: duration },
+    });
+  }
 
   await prisma.event.createMany({
     data: openSessions.map(s => ({
@@ -39,7 +41,7 @@ async function closeServerSessions(serverId: string) {
 
 // Mod heartbeat
 router.post("/heartbeat", async (req: Request, res: Response) => {
-  const { serverId, serverName, address, status, tps, mtps } = req.body;
+  const { serverId, serverName, address, status, tps, mtps, gameMode, modLoader } = req.body;
   try {
     const server = await prisma.server.upsert({
       where: { id: serverId },
@@ -47,12 +49,16 @@ router.post("/heartbeat", async (req: Request, res: Response) => {
         status: status || "online", lastHeartbeat: new Date(), name: serverName, address,
         ...(tps != null ? { tps } : {}),
         ...(mtps != null ? { mtps } : {}),
+        ...(gameMode != null ? { gameMode } : {}),
+        ...(modLoader != null ? { modLoader } : {}),
       },
       create: {
         id: serverId, name: serverName || "Unknown", address: address || "",
         status: "online", lastHeartbeat: new Date(),
         ...(tps != null ? { tps } : {}),
         ...(mtps != null ? { mtps } : {}),
+        ...(gameMode != null ? { gameMode } : {}),
+        ...(modLoader != null ? { modLoader } : {}),
       },
     });
 
@@ -61,7 +67,8 @@ router.post("/heartbeat", async (req: Request, res: Response) => {
       await closeServerSessions(serverId);
     }
 
-    res.json({ ok: true, server });
+    const commands = takePending(serverId);
+    res.json({ ok: true, server, commands });
   } catch (err) {
     res.status(500).json({ error: "Heartbeat failed" });
   }

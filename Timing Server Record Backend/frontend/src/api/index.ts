@@ -11,6 +11,8 @@ export interface Server {
   tps?: number | null;
   mtps?: number | null;
   playerCount?: number;
+  gameMode?: string;
+  modLoader?: string;
   _count?: { sessions: number; events: number };
 }
 
@@ -26,7 +28,7 @@ export interface PlayerProfile {
     durationSeconds: number | null;
     server: { name: string };
   }[];
-  stats: { totalPlayTime: number };
+  stats: { totalPlayTime: number; deaths: number };
 }
 
 export interface StatsPoint {
@@ -61,7 +63,7 @@ export interface EventData {
   type: string;
   timestamp: string;
   player: { name: string };
-  server: { name: string };
+  server: { name: string; note?: string };
 }
 
 export interface PaginatedEvents {
@@ -155,3 +157,27 @@ export async function fetchEvents(params?: {
   const res = await fetch(`${BASE}/events?${q}`);
   return res.json();
 }
+
+export interface QueuedCommand {
+  id: string;
+  serverId: string;
+  command: string;
+  timestamp: string;
+  delivered: boolean;
+}
+
+export async function sendCommand(serverId: string, command: string): Promise<QueuedCommand> {
+  const res = await fetch(`${BASE}/servers/${serverId}/command`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ command }),
+  });
+  if (!res.ok) throw new Error("Failed to send command");
+  return res.json();
+}
+
+export async function fetchCommands(serverId: string): Promise<QueuedCommand[]> {
+  const res = await fetch(`${BASE}/servers/${serverId}/commands`);
+  return res.json();
+}
+

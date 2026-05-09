@@ -68,7 +68,7 @@ router.get("/", async (req: Request, res: Response) => {
       orderBy: { timestamp: "desc" },
       skip: (page - 1) * limit,
       take: limit,
-      include: { player: { select: { name: true } }, server: { select: { name: true } } },
+      include: { player: { select: { name: true } }, server: { select: { name: true, note: true } } },
     }),
     prisma.event.count({ where }),
   ]);

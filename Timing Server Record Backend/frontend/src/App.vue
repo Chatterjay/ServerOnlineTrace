@@ -1,5 +1,13 @@
 <template>
   <div class="min-h-screen" :class="resolved === 'light' ? 'text-gray-800' : 'text-gray-100'">
+    <div class="deco-particles" aria-hidden="true">
+      <span class="d-p" style="top:15%;left:8%;width:3px;height:3px;--c:rgba(251,191,36,0.3);--d:0s;--t:25s"></span>
+      <span class="d-p" style="top:70%;left:92%;width:4px;height:4px;--c:rgba(52,211,153,0.25);--d:-7s;--t:30s"></span>
+      <span class="d-p" style="top:35%;left:95%;width:2px;height:2px;--c:rgba(129,140,248,0.3);--d:-12s;--t:20s"></span>
+      <span class="d-p" style="top:80%;left:5%;width:5px;height:5px;--c:rgba(251,191,36,0.15);--d:-5s;--t:35s"></span>
+      <span class="d-p" style="top:50%;left:50%;width:3px;height:3px;--c:rgba(52,211,153,0.2);--d:-18s;--t:28s"></span>
+      <span class="d-p" style="top:10%;left:50%;width:2px;height:2px;--c:rgba(251,191,36,0.35);--d:-10s;--t:22s"></span>
+    </div>
     <!-- 标题栏 -->
     <header class="border-b sticky top-0 z-50 backdrop-blur-md"
       :style="{ background: 'var(--header-bg)', borderColor: 'var(--header-border)' }">
@@ -41,6 +49,33 @@
 @keyframes shimmer {
   0%, 100% { background-position: 0% center; }
   50% { background-position: 200% center; }
+}
+
+.deco-particles {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.d-p {
+  position: absolute;
+  border-radius: 50%;
+  background: var(--c);
+  animation: particleFloat var(--t, 25s) ease-in-out infinite;
+  animation-delay: var(--d, 0s);
+  opacity: 0;
+}
+
+@keyframes particleFloat {
+  0%, 100% { transform: translate(0, 0) scale(1); opacity: 0; }
+  15% { opacity: 1; }
+  25% { transform: translate(20px, -30px) scale(1.4); }
+  50% { transform: translate(-15px, -20px) scale(0.8); }
+  75% { transform: translate(10px, -40px) scale(1.2); }
+  85% { opacity: 1; }
+  100% { transform: translate(-5px, -10px) scale(0.6); opacity: 0; }
 }
 
 .page-enter-active,

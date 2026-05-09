@@ -22,16 +22,24 @@ router.get("/:uuid", async (req: Request, res: Response) => {
   const recentSessions = await prisma.session.findMany({
     where: { playerUuid: req.params.uuid },
     orderBy: { joinTime: "desc" },
-    take: 50,
+    take: 100,
     include: { server: { select: { name: true } } },
   });
 
-  const totalPlayTime = recentSessions.reduce((sum, s) => sum + (s.durationSeconds || 0), 0);
+  const totalPlayTimeResult = await prisma.session.aggregate({
+    where: { playerUuid: req.params.uuid },
+    _sum: { durationSeconds: true },
+  });
+  const totalPlayTime = totalPlayTimeResult._sum.durationSeconds || 0;
+
+  const deathCount = await prisma.event.count({
+    where: { playerUuid: req.params.uuid, type: "death" },
+  });
 
   res.json({
     ...player,
     recentSessions,
-    stats: { totalPlayTime },
+    stats: { totalPlayTime, deaths: deathCount },
   });
 });
 

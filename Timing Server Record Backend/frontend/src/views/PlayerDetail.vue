@@ -4,9 +4,9 @@
 
     <GlowCard cardClass="card p-4 sm:p-6" hoverClass="">
       <div class="flex flex-col sm:flex-row items-center sm:items-center gap-4 sm:gap-5">
-        <img :src="`https://mc-heads.net/avatar/${player.uuid}/100`" :alt="player.name"
+        <img :src="`https://mc-heads.net/avatar/${(player?.uuid || '').replace(/-/g, '')}/100`" :alt="player.name"
           class="w-14 h-14 sm:w-16 sm:h-16 rounded-xl ring-2 ring-gray-700 shrink-0"
-          @error="(e: any) => { e.target.src = 'https://mc-heads.net/avatar/MHF_Steve/100'; }" />
+          @error="(e: any) => { if (!e.target.src.includes('MHF_Steve')) e.target.src = 'https://mc-heads.net/avatar/MHF_Steve/100'; }" />
         <div class="text-center sm:text-left min-w-0 flex-1">
           <h2 class="text-xl sm:text-2xl font-bold text-gray-200 flex flex-col sm:flex-row items-center sm:items-center gap-1 sm:gap-3">
             {{ player.name }}
@@ -14,12 +14,12 @@
           </h2>
           <p class="text-xs sm:text-sm text-gray-500 mt-1">总在线 {{ totalHours }} 小时 · 首次记录 {{ new Date(player.firstSeen).toLocaleDateString() }}</p>
         </div>
-        <img :src="`https://mc-heads.net/body/${player.uuid}/64`" alt=""
+        <img :src="`https://mc-heads.net/body/${(player?.uuid || '').replace(/-/g, '')}/64`" alt=""
           class="hidden sm:block w-16 h-24 opacity-60" />
       </div>
     </GlowCard>
 
-    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+    <div class="grid grid-cols-2 sm:grid-cols-5 gap-3">
       <GlowCard cardClass="card-stat p-4 text-center" hoverClass="">
         <div class="text-xl sm:text-2xl font-bold text-amber-400">{{ totalHours }}h</div>
         <div class="text-xs text-gray-500 mt-1">总在线</div>
@@ -35,6 +35,10 @@
       <GlowCard cardClass="card-stat p-4 text-center" hoverClass="">
         <div class="text-xl sm:text-2xl font-bold text-purple-400">{{ peakHour !== null ? `${peakHour}:00` : "-" }}</div>
         <div class="text-xs text-gray-500 mt-1">最活跃时段</div>
+      </GlowCard>
+      <GlowCard cardClass="card-stat p-4 text-center" hoverClass="">
+        <div class="text-xl sm:text-2xl font-bold text-red-400">{{ player.stats?.deaths ?? 0 }}</div>
+        <div class="text-xs text-gray-500 mt-1">死亡总数</div>
       </GlowCard>
     </div>
 
@@ -103,7 +107,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, onUnmounted } from "vue";
 import { useRoute } from "vue-router";
 import { use } from "echarts/core";
 import { CanvasRenderer } from "echarts/renderers";
@@ -245,12 +249,23 @@ const dailyOption2 = computed(() => ({
   }],
 }));
 
-onMounted(async () => {
+let timer: ReturnType<typeof setInterval> | null = null;
+
+async function load() {
   if (!uuid) return;
   player.value = await fetchPlayer(uuid);
   dailyStats.value = await fetchPlayerDailyStats(uuid);
   weeklyStats.value = await fetchPlayerWeeklyStats(uuid);
   hourlyStats.value = await fetchPlayerHourlyStats(uuid);
   weekdayStats.value = await fetchPlayerWeekdayStats(uuid);
+}
+
+onMounted(() => {
+  load();
+  timer = setInterval(load, 30000);
+});
+
+onUnmounted(() => {
+  if (timer) clearInterval(timer);
 });
 </script>

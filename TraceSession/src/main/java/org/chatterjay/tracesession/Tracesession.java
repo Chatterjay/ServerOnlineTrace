@@ -1,5 +1,6 @@
 package org.chatterjay.tracesession;
 
+import com.google.gson.JsonObject;
 import com.mojang.logging.LogUtils;
 import net.minecraft.server.MinecraftServer;
 import net.neoforged.bus.api.IEventBus;
@@ -62,10 +63,35 @@ public class Tracesession
 
         scheduler = Executors.newSingleThreadScheduledExecutor();
         scheduler.scheduleAtFixedRate(
-                () -> getApiClient().sendHeartbeat(
-                        Config.serverId, Config.serverName, serverAddress,
-                        currentTps, currentMtps
-                ),
+                () -> {
+                    try {
+                        String gameMode = minecraftServer.getDefaultGameType().getName();
+                        JsonObject response = getApiClient().sendHeartbeatSync(
+                                Config.serverId, Config.serverName, serverAddress,
+                                currentTps, currentMtps, gameMode, Config.modLoader
+                        );
+                        if (response != null && response.has("commands") && !response.get("commands").isJsonNull())
+                        {
+                            var commands = response.getAsJsonArray("commands");
+                            for (var elem : commands)
+                            {
+                                var cmdObj = elem.getAsJsonObject();
+                                String commandText = cmdObj.get("command").getAsString();
+                                minecraftServer.execute(() -> {
+                                    try {
+                                        var source = minecraftServer.createCommandSourceStack().withPermission(3);
+                                        minecraftServer.getCommands().performPrefixedCommand(source, commandText);
+                                        LOGGER.info("Executed command: {}", commandText);
+                                    } catch (Exception ex) {
+                                        LOGGER.error("Failed to execute command '{}': {}", commandText, ex.getMessage());
+                                    }
+                                });
+                            }
+                        }
+                    } catch (Exception e) {
+                        LOGGER.error("Heartbeat/command error: {}", e.getMessage());
+                    }
+                },
                 0, 30, TimeUnit.SECONDS
         );
         LOGGER.info("Heartbeat started (every 30s) -> {} ({})", Config.backendUrl, serverAddress);

@@ -37,4 +37,15 @@ public class PlayerEventListener
         LOGGER.info("Player left: {} (UUID: {})", player.getName().getString(), player.getUUID());
         Tracesession.getApiClient().sendEvent(Config.serverId, player.getUUID().toString(), player.getName().getString(), "leave");
     }
+
+    @SubscribeEvent
+    public void onPlayerClone(PlayerEvent.Clone event)
+    {
+        if (event.isWasDeath())
+        {
+            var player = event.getEntity();
+            Tracesession.getApiClient().sendEvent(Config.serverId, player.getUUID().toString(), player.getName().getString(), "death");
+            LOGGER.info("Player died: {} (UUID: {})", player.getName().getString(), player.getUUID());
+        }
+    }
 }

@@ -14,6 +14,20 @@
             {{ server.address || "未知地址" }}
             <span v-if="server.lastHeartbeat" class="ml-3">最后心跳 {{ timeAgo(server.lastHeartbeat) }}</span>
           </p>
+          <p v-if="server.gameMode || server.modLoader" class="text-xs text-gray-600 mt-2 flex items-center gap-3">
+            <span v-if="server.gameMode" class="inline-flex items-center gap-1">
+              <svg class="w-3.5 h-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+                <rect x="2" y="2" width="12" height="12" rx="2" /><circle cx="8" cy="8" r="2" />
+              </svg>
+              {{ gameModeLabel(server.gameMode) }}
+            </span>
+            <span v-if="server.modLoader" class="inline-flex items-center gap-1">
+              <svg class="w-3.5 h-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M4 2h8a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1zM4 6h8M4 9h5" />
+              </svg>
+              {{ server.modLoader }}
+            </span>
+          </p>
         </div>
       </div>
     </GlowCard>
@@ -79,10 +93,56 @@
 
     <GlowCard cardClass="card p-4 sm:p-6 animate-fade-in-d3" hoverClass="">
       <h3 class="text-base font-semibold mb-4 text-gray-200">玩家活跃排行</h3>
-      <div v-if="topPlayersData.length > 0">
-        <VChart :option="topPlayersOption" autoresize style="height:300px;width:100%" />
+      <div v-if="topPlayersData.length > 0" class="space-y-1">
+        <div v-for="(p, i) in topPlayersData" :key="p.uuid"
+          class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-700/30 transition-colors">
+          <div class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0"
+            :class="rankBadge(i)">
+            {{ i + 1 }}
+          </div>
+          <img :src="`https://mc-heads.net/avatar/${p.uuid.replace(/-/g, '')}/24`" alt=""
+            class="w-6 h-6 rounded shrink-0" />
+          <router-link :to="`/players/${p.uuid}`"
+            class="text-sm text-gray-200 hover:text-amber-400 truncate min-w-0 flex-1">
+            {{ p.name }}
+          </router-link>
+          <span class="text-xs text-gray-400 font-mono shrink-0 whitespace-nowrap">{{ p.hours }}h</span>
+          <span class="text-xs text-gray-500 shrink-0 whitespace-nowrap">{{ p.sessions }}次会话</span>
+        </div>
       </div>
-      <div v-else class="flex items-center justify-center h-[300px] text-gray-500 text-sm">暂无数据</div>
+      <div v-else class="flex items-center justify-center h-[200px] text-gray-500 text-sm">暂无数据</div>
+    </GlowCard>
+
+    <GlowCard cardClass="card p-4 sm:p-6 animate-fade-in-d3" hoverClass="">
+      <h3 class="text-base font-semibold mb-4 text-gray-200 flex items-center gap-2">
+        <svg class="w-4 h-4" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M2 3h12v10H2zM5 7h6M5 9.5h4" stroke-linecap="round" />
+        </svg>
+        服务器控制台
+        <span class="text-xs text-gray-600 font-normal">指令等级 LV3</span>
+      </h3>
+      <div class="terminal-box">
+        <div class="terminal-output" ref="terminalRef">
+          <div v-for="cmd in commandHistory" :key="cmd.id" class="terminal-line">
+            <span class="terminal-prompt">&gt;</span>
+            <span class="terminal-cmd">{{ cmd.command }}</span>
+            <span class="terminal-time">{{ new Date(cmd.timestamp).toLocaleTimeString() }}</span>
+          </div>
+          <div v-if="commandHistory.length === 0" class="terminal-line text-gray-600">暂无指令记录</div>
+        </div>
+        <form @submit.prevent="doSendCommand" class="terminal-input-row">
+          <span class="terminal-prompt">&gt;</span>
+          <input
+            ref="inputRef"
+            v-model="commandText"
+            placeholder="输入指令..."
+            class="terminal-input"
+            :disabled="sending"
+          />
+          <button type="submit" :disabled="!commandText.trim() || sending"
+            class="terminal-btn">发送</button>
+        </form>
+      </div>
     </GlowCard>
   </div>
 
@@ -92,7 +152,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, onUnmounted } from "vue";
 import { useRoute } from "vue-router";
 import { use } from "echarts/core";
 import { CanvasRenderer } from "echarts/renderers";
@@ -105,8 +165,9 @@ import GlowCard from "../components/GlowCard.vue";
 import {
   fetchServer, updateServerNote, fetchServerDailyStats,
   fetchServerHourlyStats, fetchServerWeekdayStats, fetchServerTopPlayers,
+  sendCommand, fetchCommands,
   type Server, type StatsPoint, type HourlyStats, type WeekdayStats,
-  type TopPlayerStats,
+  type TopPlayerStats, type QueuedCommand,
 } from "../api/index.js";
 
 use([CanvasRenderer, BarChart, LineChart, PieChart, GridComponent, TooltipComponent, LegendComponent]);
@@ -190,6 +251,60 @@ const tooltipStyle = {
   textStyle: { color: "#e5e7eb", fontSize: 12 },
 };
 
+const rankBadge = (i: number) => {
+  if (i === 0) return "bg-amber-500/20 text-amber-400";
+  if (i === 1) return "bg-gray-400/20 text-gray-300";
+  if (i === 2) return "bg-orange-500/20 text-orange-400";
+  return "bg-gray-700/50 text-gray-500";
+};
+
+const gameModeLabel = (mode: string) => {
+  const map: Record<string, string> = {
+    survival: "生存模式",
+    creative: "创造模式",
+    adventure: "冒险模式",
+    spectator: "旁观模式",
+  };
+  return map[mode] || mode;
+};
+
+const commandText = ref("");
+const commandHistory = ref<QueuedCommand[]>([]);
+const sending = ref(false);
+const terminalRef = ref<HTMLElement | null>(null);
+const inputRef = ref<HTMLInputElement | null>(null);
+
+async function loadCommands() {
+  const id = route.params.id as string;
+  if (!id) return;
+  commandHistory.value = await fetchCommands(id);
+}
+
+function scrollTerminal() {
+  setTimeout(() => {
+    if (terminalRef.value) {
+      terminalRef.value.scrollTop = terminalRef.value.scrollHeight;
+    }
+  }, 50);
+}
+
+async function doSendCommand() {
+  const text = commandText.value.trim();
+  if (!text || sending.value) return;
+  sending.value = true;
+  try {
+    const cmd = await sendCommand(route.params.id as string, text);
+    commandHistory.value.push(cmd);
+    commandText.value = "";
+    scrollTerminal();
+  } catch {
+    // ignore
+  } finally {
+    sending.value = false;
+    setTimeout(() => inputRef.value?.focus(), 100);
+  }
+}
+
 const dailyOption = computed(() => ({
   tooltip: { ...tooltipStyle, trigger: "axis" as const, formatter: (p: any) => `${Number(p[0]?.value || 0).toFixed(1)} 小时` },
   grid: { left: 40, right: 16, top: 8, bottom: 20 },
@@ -227,42 +342,7 @@ const weekdayOption = computed(() => ({
   }],
 }));
 
-const topPlayersOption = computed(() => ({
-  tooltip: {
-    ...tooltipStyle,
-    trigger: "axis" as const,
-    axisPointer: { type: "shadow" as const },
-    formatter: (p: any) => {
-      const item = p[0];
-      return `${item.name}<br/>${Number(item.value || 0).toFixed(1)} 小时 · ${topPlayersData.value[item.dataIndex]?.sessions ?? 0} 次会话`;
-    },
-  },
-  grid: { left: 80, right: 40, top: 8, bottom: 8 },
-  xAxis: { type: "value" as const, name: "h", nameTextStyle: { color: "#9ca3af", fontSize: 11 }, axisLabel: { color: "#9ca3af", fontSize: 11 }, splitLine: { lineStyle: { color: "#374151", opacity: 0.5 } } },
-  yAxis: {
-    type: "category" as const,
-    data: topPlayersData.value.map(p => p.name),
-    axisLine: { show: false },
-    axisTick: { show: false },
-    axisLabel: { color: "#9ca3af", fontSize: 11 },
-  },
-  series: [{
-    type: "bar" as const,
-    data: topPlayersData.value.map(p => p.hours),
-    barMaxWidth: 24,
-    itemStyle: {
-      color: { type: "linear" as const, x: 0, y: 0, x2: 1, y2: 0, colorStops: [{ offset: 0, color: "#34d399" }, { offset: 1, color: "#2dd4bf" }] },
-      borderRadius: [0, 4, 4, 0],
-    },
-    label: {
-      show: true,
-      position: "right" as const,
-      color: "#9ca3af",
-      fontSize: 11,
-      formatter: (p: any) => `${Number(p.value || 0).toFixed(1)}h`,
-    },
-  }],
-}));
+let cmdTimer: ReturnType<typeof setInterval> | null = null;
 
 onMounted(async () => {
   await load();
@@ -274,5 +354,11 @@ onMounted(async () => {
     fetchServerWeekdayStats(id),
     fetchServerTopPlayers(id),
   ]);
+  await loadCommands();
+  cmdTimer = setInterval(loadCommands, 5000);
+});
+
+onUnmounted(() => {
+  if (cmdTimer) clearInterval(cmdTimer);
 });
 </script>

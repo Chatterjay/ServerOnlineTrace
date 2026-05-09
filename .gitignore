@@ -28,6 +28,9 @@ dist/
 # Env
 .env
 
+# SSL certificates
+ssl/
+
 # Logs
 *.log
 hs_err_pid*
@@ -46,3 +49,21 @@ $RECYCLE.BIN/
 .directory
 .Trash-*
 .nfs*
+
+# Claude
+.claude/
+CLAUDE.md
+
+# Shutdown / test scripts
+shutdown.bat
+shutdown.ps1
+shutdown.sh
+
+# SSH
+.ssh/
+**/.ssh/
+*.pem
+id_rsa*
+id_ed25519*
+known_hosts
+authorized_keys
