@@ -6,6 +6,7 @@ const router = createRouter({
     { path: "/", name: "dashboard", component: () => import("../views/Dashboard.vue") },
     { path: "/servers/:id", name: "server-detail", component: () => import("../views/ServerDetail.vue") },
     { path: "/players/:uuid", name: "player-detail", component: () => import("../views/PlayerDetail.vue") },
+    { path: "/about", name: "about", component: () => import("../views/About.vue") },
   ],
 });
 

@@ -16,6 +16,12 @@
         <h1 class="title-gradient text-xl sm:text-2xl font-bold tracking-wide">TraceSession</h1>
         <span class="ml-auto text-xs" :class="resolved === 'light' ? 'text-gray-400' : 'text-gray-600'">实时监控面板</span>
 
+        <router-link to="/about"
+          class="ml-2 text-xs px-2 py-1 rounded transition-colors"
+          :class="resolved === 'light' ? 'text-gray-500 hover:text-gray-700 hover:bg-gray-200/50' : 'text-gray-500 hover:text-gray-300 hover:bg-gray-700/50'">
+          关于
+        </router-link>
+
         <!-- 主题切换按钮 -->
         <button @click="cycleTheme"
           class="cursor-pointer ml-2 w-8 h-8 flex items-center justify-center rounded-lg text-sm transition-all hover:scale-110"
