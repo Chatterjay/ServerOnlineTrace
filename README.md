@@ -1,20 +1,34 @@
 # TraceSession
 
-Minecraft 服务器在线时长追踪系统。
+TraceSession 是一个 Minecraft 服务器在线时长追踪系统。
 
 ## 快速开始
 
+### 1. 安装 Node.js
+
+从 **https://nodejs.org** 下载 **LTS 版本**（22.x）并安装。安装时全部默认选项即可。
+
+安装完成后打开命令行验证：
+
+```
+node --version
+```
+
+### 2. 启动
+
 ```bash
-# Windows
+# Windows：双击 start.bat
 start.bat
 
-# Mac / Linux
+# Mac / Linux：
 ./start.sh
 ```
 
-脚本自动检测 Node.js、构建前端、启动后端。启动后访问 **http://localhost:27890**。
+脚本会自动安装前端依赖、构建页面、启动后端。启动后浏览器访问 **http://localhost:27890**。
 
-将编译好的 `tracesession.jar` 放入 Minecraft 服务器 `mods/` 目录，启动服务器即可。
+### 3. 安装模组
+
+将编译好的 `tracesession.jar` 放入 Minecraft 服务器 `mods/` 目录，启动服务器。模组自动连接后端开始上报数据。
 
 ## 端口
 
