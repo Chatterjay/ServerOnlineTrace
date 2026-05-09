@@ -63,21 +63,68 @@
 
         <div v-if="dbInfo.type === 'SQLite'" class="text-gray-400 leading-relaxed space-y-2">
           <p>系统当前使用 <span class="text-green-400 font-medium">SQLite</span> 作为数据库，数据存储在本地文件中，无需额外配置即可使用，适合单机调试和小规模使用。</p>
-          <div class="bg-gray-800/50 border border-gray-700/50 rounded p-3 space-y-1.5">
-            <p class="text-gray-300 font-medium">切换到 PostgreSQL（生产环境）</p>
-            <ol class="list-decimal list-inside space-y-1 text-gray-400">
-              <li>安装 PostgreSQL 并创建数据库（例如 <code class="text-gray-300">tracesession</code>）</li>
-              <li>编辑 <code class="text-gray-300">backend/.env</code> 文件，设置数据库连接：
-                <pre class="mt-1 bg-gray-900/60 rounded px-2 py-1.5 text-xs text-gray-300 overflow-x-auto">DATABASE_URL=postgresql://用户:密码@localhost:5432/tracesession</pre>
-              </li>
-              <li>重启后端服务即可自动切换</li>
-            </ol>
+          <div class="bg-gray-800/50 border border-gray-600/50 rounded p-4 space-y-3">
+            <p class="text-gray-300 font-medium text-base">切换到 PostgreSQL（生产环境）</p>
+
+            <div class="space-y-1">
+              <p class="text-gray-300 text-xs font-medium">① 安装 PostgreSQL</p>
+              <ul class="text-gray-400 text-xs space-y-0.5 list-disc list-inside">
+                <li><span class="text-gray-500">Windows：</span>从 <a href="https://www.postgresql.org/download/windows/" target="_blank" class="text-cyan-400 hover:underline">postgresql.org</a> 下载安装程序，安装时记住设置的数据库密码</li>
+                <li><span class="text-gray-500">macOS：</span><code class="text-gray-300">brew install postgresql@16 && brew services start postgresql@16</code></li>
+                <li><span class="text-gray-500">Linux：</span><code class="text-gray-300">sudo apt install postgresql</code>（Debian/Ubuntu）或 <code class="text-gray-300">sudo dnf install postgresql-server</code>（RHEL/Fedora）</li>
+                <li><span class="text-gray-500">Docker：</span><code class="text-gray-300">docker run -d --name pg -e POSTGRES_PASSWORD=密码 -p 5432:5432 postgres:16</code></li>
+              </ul>
+            </div>
+
+            <div class="space-y-1">
+              <p class="text-gray-300 text-xs font-medium">② 创建数据库</p>
+              <p class="text-gray-400 text-xs">连接 PostgreSQL 后执行以下 SQL 创建数据库：</p>
+              <pre class="bg-gray-900/60 rounded px-2 py-1.5 text-xs text-gray-300 overflow-x-auto">CREATE DATABASE tracesession;</pre>
+              <p class="text-gray-500 text-xs">或使用命令行：<code class="text-gray-300">createdb -U postgres tracesession</code></p>
+            </div>
+
+            <div class="space-y-1">
+              <p class="text-gray-300 text-xs font-medium">③ 配置连接信息</p>
+              <p class="text-gray-400 text-xs">用任意文本编辑器打开 <code class="text-gray-300">Timing Server Record Backend/backend/.env</code> 文件（如果没有则新建），写入：</p>
+              <pre class="bg-gray-900/60 rounded px-2 py-1.5 text-xs text-gray-300 overflow-x-auto">DATABASE_URL=postgresql://postgres:你的密码@localhost:5432/tracesession</pre>
+              <p class="text-gray-500 text-xs">将 <code class="text-gray-300">你的密码</code> 替换为安装 PostgreSQL 时设置的密码。如果数据库不在本机，将 <code class="text-gray-300">localhost</code> 改为对应 IP 地址。</p>
+            </div>
+
+            <div class="space-y-1">
+              <p class="text-gray-300 text-xs font-medium">④ 重启后端</p>
+              <p class="text-gray-400 text-xs">在 <code class="text-gray-300">Timing Server Record Backend/backend/</code> 目录下重新执行：</p>
+              <pre class="bg-gray-900/60 rounded px-2 py-1.5 text-xs text-gray-300 overflow-x-auto">npm start</pre>
+              <p class="text-gray-500 text-xs">后端启动时会自动检测 <code class="text-gray-300">DATABASE_URL</code> 并切换到 PostgreSQL，自动同步数据库表结构。</p>
+            </div>
+
+            <div class="space-y-1">
+              <p class="text-gray-300 text-xs font-medium">⑤ 验证切换成功</p>
+              <p class="text-gray-400 text-xs">刷新本页面，标题栏的数据库标签应从 <span class="bg-green-900/30 text-green-400 px-1 rounded text-xs">SQLite</span> 变为 <span class="bg-blue-900/30 text-blue-400 px-1 rounded text-xs">PostgreSQL</span>。</p>
+            </div>
           </div>
         </div>
 
-        <div v-else class="text-gray-400 leading-relaxed">
+        <div v-else class="text-gray-400 leading-relaxed space-y-2">
           <p>系统当前使用 <span class="text-blue-400 font-medium">PostgreSQL</span> 作为数据库，适合多服务器并发和生产环境部署。</p>
-          <p class="mt-2">如需切换回 SQLite，清空 <code class="text-gray-300">.env</code> 中的 <code class="text-gray-300">DATABASE_URL</code> 或将其注释掉，重启后端即可。</p>
+          <div class="bg-gray-800/50 border border-gray-600/50 rounded p-4 space-y-3">
+            <p class="text-gray-300 font-medium text-base">切换回 SQLite（本地调试）</p>
+            <div class="space-y-1">
+              <p class="text-gray-400 text-xs">用任意文本编辑器打开 <code class="text-gray-300">Timing Server Record Backend/backend/.env</code> 文件：</p>
+              <ul class="text-gray-400 text-xs space-y-1 list-disc list-inside">
+                <li>将 <code class="text-gray-300">DATABASE_URL=postgresql://...</code> 整行删除或行首加 <code class="text-gray-300">#</code> 注释掉</li>
+                <li>保存文件</li>
+              </ul>
+            </div>
+            <div class="space-y-1">
+              <p class="text-gray-400 text-xs">在 <code class="text-gray-300">Timing Server Record Backend/backend/</code> 目录下重启后端：</p>
+              <pre class="bg-gray-900/60 rounded px-2 py-1.5 text-xs text-gray-300 overflow-x-auto">npm start</pre>
+              <p class="text-gray-500 text-xs">启动脚本检测到 <code class="text-gray-300">DATABASE_URL</code> 为空后，会自动使用 SQLite，在 <code class="text-gray-300">backend/data/tracesession.db</code> 创建数据库文件。</p>
+            </div>
+            <div class="space-y-1">
+              <p class="text-gray-300 text-xs font-medium">注意</p>
+              <p class="text-gray-400 text-xs">PostgreSQL 中的数据不会自动迁移到 SQLite。切换数据库类型会使用全新的数据存储，原有数据请提前备份。</p>
+            </div>
+          </div>
         </div>
       </div>
 
