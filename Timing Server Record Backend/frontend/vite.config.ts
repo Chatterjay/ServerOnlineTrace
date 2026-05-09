@@ -5,6 +5,6 @@ import tailwindcss from "@tailwindcss/vite";
 export default defineConfig({
   plugins: [vue(), tailwindcss()],
   server: {
-    proxy: { "/api": { target: "https://localhost:4561", secure: false } },
+    proxy: { "/api": { target: "https://localhost:27891", secure: false } },
   },
 });

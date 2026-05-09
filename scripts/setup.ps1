@@ -51,5 +51,5 @@ npm run build
 Write-Host ""
 Write-Host "===== 部署完成 =====" -ForegroundColor Cyan
 Write-Host "启动后端: cd $BACKEND && npx tsx src/index.ts" -ForegroundColor White
-Write-Host "后端地址: http://localhost:4560 | https://localhost:4561" -ForegroundColor White
+Write-Host "后端地址: http://localhost:27890 | https://localhost:27891" -ForegroundColor White
 Write-Host "前端构建产物: $FRONTEND\dist\" -ForegroundColor White

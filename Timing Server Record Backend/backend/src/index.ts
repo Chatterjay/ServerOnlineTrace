@@ -12,8 +12,8 @@ import commandsRouter from "./routes/commands.js";
 import chatRouter from "./routes/chat.js";
 
 const app = express();
-const HTTP_PORT = parseInt(process.env.HTTP_PORT || "4560");
-const HTTPS_PORT = parseInt(process.env.HTTPS_PORT || "4561");
+const HTTP_PORT = parseInt(process.env.HTTP_PORT || "27890");
+const HTTPS_PORT = parseInt(process.env.HTTPS_PORT || "27891");
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 app.use(cors());
