@@ -1,6 +1,11 @@
 <template>
   <div class="space-y-6 animate-fade-in">
-    <router-link to="/" class="text-amber-400 hover:text-amber-300 hover:underline text-sm inline-flex items-center gap-1">&larr; 返回仪表盘</router-link>
+    <router-link to="/"
+      class="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg transition-all text-gray-500 hover:text-gray-300"
+      :style="{ background: 'var(--card-bg)', border: '1px solid var(--card-border)' }">
+      <svg class="w-3.5 h-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10 12L6 8l4-4"/></svg>
+      返回
+    </router-link>
 
     <GlowCard cardClass="card p-4 sm:p-6" hoverClass="">
       <h2 class="text-xl font-bold text-gray-200 mb-2">关于 TraceSession</h2>

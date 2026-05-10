@@ -7,9 +7,14 @@
     @mouseleave="onMouseLeave"
   >
     <div
-      class="pointer-events-none absolute inset-0 -z-0 transition-opacity duration-500 ease-out"
+      class="pointer-events-none absolute -inset-[1px] -z-0 rounded-xl transition-opacity duration-700 ease-out"
       :class="glowVisible ? 'opacity-100' : 'opacity-0'"
-      :style="glowStyle"
+      :style="glowBorderStyle"
+    />
+    <div
+      class="pointer-events-none absolute inset-0 -z-0 transition-opacity duration-600 ease-out"
+      :class="glowVisible ? 'opacity-100' : 'opacity-0'"
+      :style="glowBgStyle"
     />
     <div class="relative z-[1]">
       <slot />
@@ -45,7 +50,11 @@ function onMouseLeave() {
   glowVisible.value = false;
 }
 
-const glowStyle = computed(() => ({
-  background: `radial-gradient(500px circle at ${mouseX.value}px ${mouseY.value}px, rgba(251, 191, 36, 0.06), transparent 60%)`,
+const glowBgStyle = computed(() => ({
+  background: `radial-gradient(600px circle at ${mouseX.value}px ${mouseY.value}px, rgba(139, 92, 246, 0.08), rgba(236, 72, 153, 0.04), transparent 60%)`,
+}));
+
+const glowBorderStyle = computed(() => ({
+  background: `radial-gradient(400px circle at ${mouseX.value}px ${mouseY.value}px, rgba(139, 92, 246, 0.25), rgba(236, 72, 153, 0.12), transparent 60%)`,
 }));
 </script>

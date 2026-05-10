@@ -1,6 +1,11 @@
 <template>
   <div class="space-y-6" v-if="server">
-    <router-link to="/" class="text-amber-400 hover:text-amber-300 hover:underline text-sm inline-flex items-center gap-1">&larr; 返回仪表盘</router-link>
+    <router-link to="/"
+      class="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg transition-all text-gray-500 hover:text-gray-300"
+      :style="{ background: 'var(--card-bg)', border: '1px solid var(--card-border)' }">
+      <svg class="w-3.5 h-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10 12L6 8l4-4"/></svg>
+      返回
+    </router-link>
 
     <GlowCard cardClass="card p-4 sm:p-6" hoverClass="">
       <div class="flex items-center gap-3 sm:gap-4">
@@ -63,19 +68,19 @@
     </GlowCard>
 
     <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-      <GlowCard cardClass="card-stat p-4 text-center" hoverClass="">
+      <GlowCard cardClass="card-stat card-stat-accent-amber p-4 text-center" hoverClass="">
         <div class="text-xl sm:text-2xl font-bold text-amber-400">{{ server._count?.sessions ?? "-" }}</div>
         <div class="text-xs text-gray-500 mt-1">会话数</div>
       </GlowCard>
-      <GlowCard cardClass="card-stat p-4 text-center" hoverClass="">
+      <GlowCard cardClass="card-stat card-stat-accent-purple p-4 text-center" hoverClass="">
         <div class="text-xl sm:text-2xl font-bold text-purple-400">{{ server._count?.events ?? "-" }}</div>
         <div class="text-xs text-gray-500 mt-1">事件数</div>
       </GlowCard>
-      <GlowCard cardClass="card-stat p-4 text-center" hoverClass="">
+      <GlowCard cardClass="card-stat card-stat-accent-blue p-4 text-center" hoverClass="">
         <div class="text-xl sm:text-2xl font-bold text-blue-400">{{ server.lastHeartbeat ? timeAgo(server.lastHeartbeat) : "-" }}</div>
         <div class="text-xs text-gray-500 mt-1">最后心跳</div>
       </GlowCard>
-      <GlowCard cardClass="card-stat p-4 text-center" hoverClass="">
+      <GlowCard cardClass="card-stat card-stat-accent-green p-4 text-center" hoverClass="">
         <div class="text-xl sm:text-2xl font-bold text-green-400">{{ new Date(server.firstSeen).toLocaleDateString() }}</div>
         <div class="text-xs text-gray-500 mt-1">首次记录</div>
       </GlowCard>
@@ -276,10 +281,10 @@ const topPlayersData = computed(() =>
 );
 
 const tooltipStyle = {
-  backgroundColor: "#1f2937",
-  borderColor: "#374151",
+  backgroundColor: "rgba(17,24,39,0.95)",
+  borderColor: "rgba(139,92,246,0.25)",
   borderRadius: 8,
-  boxShadow: "0 8px 24px rgba(0,0,0,0.4)",
+  boxShadow: "0 8px 24px rgba(0,0,0,0.5)",
   textStyle: { color: "#e5e7eb", fontSize: 12 },
 };
 

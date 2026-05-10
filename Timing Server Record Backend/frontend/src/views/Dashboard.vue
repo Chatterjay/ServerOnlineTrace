@@ -13,7 +13,7 @@
       </button>
     </div>
     <div class="grid grid-cols-2 sm:grid-cols-5 gap-3 animate-fade-in">
-      <GlowCard cardClass="card-stat p-4 text-center !overflow-visible" hoverClass="">
+      <GlowCard cardClass="card-stat card-stat-accent-amber p-4 text-center !overflow-visible" hoverClass="">
         <div class="text-2xl sm:text-3xl font-bold text-amber-400">{{ stats.total }}</div>
         <div class="text-xs text-gray-500 mt-1 flex items-center justify-center gap-1">
           服务器总数
@@ -23,7 +23,7 @@
           </span>
         </div>
       </GlowCard>
-      <GlowCard cardClass="card-stat p-4 text-center !overflow-visible" hoverClass="">
+      <GlowCard cardClass="card-stat card-stat-accent-green p-4 text-center !overflow-visible" hoverClass="">
         <div class="text-2xl sm:text-3xl font-bold text-green-400">{{ stats.online }}</div>
         <div class="text-xs text-gray-500 mt-1 flex items-center justify-center gap-1">
           在线服务器
@@ -33,7 +33,7 @@
           </span>
         </div>
       </GlowCard>
-      <GlowCard cardClass="card-stat p-4 text-center !overflow-visible" hoverClass="">
+      <GlowCard cardClass="card-stat card-stat-accent-blue p-4 text-center !overflow-visible" hoverClass="">
         <div class="text-2xl sm:text-3xl font-bold text-blue-400">{{ stats.players }}</div>
         <div class="text-xs text-gray-500 mt-1 flex items-center justify-center gap-1">
           玩家总数
@@ -43,7 +43,7 @@
           </span>
         </div>
       </GlowCard>
-      <GlowCard cardClass="card-stat p-4 text-center !overflow-visible" hoverClass="">
+      <GlowCard cardClass="card-stat card-stat-accent-cyan p-4 text-center !overflow-visible" hoverClass="">
         <div class="text-2xl sm:text-3xl font-bold text-cyan-400">{{ stats.sessions }}</div>
         <div class="text-xs text-gray-500 mt-1 flex items-center justify-center gap-1">
           会话总数
@@ -53,7 +53,7 @@
           </span>
         </div>
       </GlowCard>
-      <GlowCard cardClass="card-stat p-4 text-center !overflow-visible" hoverClass="">
+      <GlowCard cardClass="card-stat card-stat-accent-purple p-4 text-center !overflow-visible" hoverClass="">
         <div class="text-2xl sm:text-3xl font-bold text-purple-400">{{ stats.events }}</div>
         <div class="text-xs text-gray-500 mt-1 flex items-center justify-center gap-1">
           事件总数

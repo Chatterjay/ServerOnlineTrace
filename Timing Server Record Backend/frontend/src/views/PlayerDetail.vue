@@ -1,6 +1,11 @@
 <template>
   <div class="space-y-6" v-if="player">
-    <router-link to="/" class="text-amber-400 hover:text-amber-300 hover:underline text-sm inline-flex items-center gap-1">&larr; 返回仪表盘</router-link>
+    <router-link to="/"
+      class="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg transition-all text-gray-500 hover:text-gray-300"
+      :style="{ background: 'var(--card-bg)', border: '1px solid var(--card-border)' }">
+      <svg class="w-3.5 h-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10 12L6 8l4-4"/></svg>
+      返回
+    </router-link>
 
     <GlowCard cardClass="card p-4 sm:p-6" hoverClass="">
       <div class="flex flex-col sm:flex-row items-center sm:items-center gap-4 sm:gap-5">
@@ -20,24 +25,24 @@
     </GlowCard>
 
     <div class="grid grid-cols-2 sm:grid-cols-5 gap-3">
-      <GlowCard cardClass="card-stat p-4 text-center" hoverClass="">
+      <GlowCard cardClass="card-stat card-stat-accent-amber p-4 text-center" hoverClass="">
         <div class="text-xl sm:text-2xl font-bold text-amber-400">{{ totalHours }}h</div>
         <div class="text-xs text-gray-500 mt-1">总在线</div>
       </GlowCard>
-      <GlowCard cardClass="card-stat p-4 text-center" hoverClass="">
+      <GlowCard cardClass="card-stat card-stat-accent-green p-4 text-center" hoverClass="">
         <div class="text-xl sm:text-2xl font-bold text-green-400">{{ activeDays }}天</div>
         <div class="text-xs text-gray-500 mt-1">活跃天数</div>
       </GlowCard>
-      <GlowCard cardClass="card-stat p-4 text-center" hoverClass="">
+      <GlowCard cardClass="card-stat card-stat-accent-blue p-4 text-center" hoverClass="">
         <div class="text-xl sm:text-2xl font-bold text-blue-400">{{ activeDays > 0 ? fmt(avgDaily) : "-" }}</div>
         <div class="text-xs text-gray-500 mt-1">日均在线</div>
       </GlowCard>
-      <GlowCard cardClass="card-stat p-4 text-center" hoverClass="">
+      <GlowCard cardClass="card-stat card-stat-accent-purple p-4 text-center" hoverClass="">
         <div class="text-xl sm:text-2xl font-bold text-purple-400">{{ peakHour !== null ? `${peakHour}:00` : "-" }}</div>
         <div class="text-xs text-gray-500 mt-1">最活跃时段</div>
       </GlowCard>
-      <GlowCard cardClass="card-stat p-4 text-center" hoverClass="">
-        <div class="text-xl sm:text-2xl font-bold text-red-400">{{ player.stats?.deaths ?? 0 }}</div>
+      <GlowCard cardClass="card-stat card-stat-accent-pink p-4 text-center" hoverClass="">
+        <div class="text-xl sm:text-2xl font-bold text-pink-400">{{ player.stats?.deaths ?? 0 }}</div>
         <div class="text-xs text-gray-500 mt-1">死亡总数</div>
       </GlowCard>
     </div>
@@ -180,10 +185,10 @@ const weekdayData = computed(() => WEEKDAY_NAMES.map((name, i) => {
 }));
 
 const tooltipStyle = {
-  backgroundColor: "#1f2937",
-  borderColor: "#374151",
+  backgroundColor: "rgba(17,24,39,0.95)",
+  borderColor: "rgba(139,92,246,0.25)",
   borderRadius: 8,
-  boxShadow: "0 8px 24px rgba(0,0,0,0.4)",
+  boxShadow: "0 8px 24px rgba(0,0,0,0.5)",
   textStyle: { color: "#e5e7eb", fontSize: 12 },
 };
 

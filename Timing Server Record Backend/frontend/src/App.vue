@@ -9,30 +9,32 @@
       <span class="d-p" style="top:10%;left:50%;width:2px;height:2px;--c:rgba(251,191,36,0.35);--d:-10s;--t:22s"></span>
     </div>
     <!-- 标题栏 -->
-    <header class="border-b sticky top-0 z-50 backdrop-blur-md"
-      :style="{ background: 'var(--header-bg)', borderColor: 'var(--header-border)' }">
+    <header class="sticky top-0 z-50"
+      :style="{ background: 'var(--header-bg)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', borderBottom: '1px solid var(--header-border)' }">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center gap-3">
         <div class="w-2.5 h-2.5 rounded-full live-dot" />
         <h1 class="title-gradient text-xl sm:text-2xl font-bold tracking-wide">TraceSession</h1>
         <span class="ml-auto text-xs" :class="resolved === 'light' ? 'text-gray-400' : 'text-gray-600'">实时监控面板</span>
 
         <router-link to="/about"
-          class="ml-2 text-xs px-2 py-1 rounded transition-colors"
-          :class="resolved === 'light' ? 'text-gray-500 hover:text-gray-700 hover:bg-gray-200/50' : 'text-gray-500 hover:text-gray-300 hover:bg-gray-700/50'">
+          class="ml-2 text-xs px-3 py-1.5 rounded-lg transition-all"
+          :class="resolved === 'light' ? 'text-gray-500 hover:text-gray-700 hover:bg-gray-200/50' : 'text-gray-500 hover:text-gray-300 hover:bg-gray-700/50'"
+          :style="{ backdropFilter: 'blur(8px)' }">
           关于
         </router-link>
 
         <span v-if="dbType"
-          class="text-[10px] px-1.5 py-0.5 rounded font-mono shrink-0"
+          class="text-[10px] px-2 py-1 rounded font-mono shrink-0 tracking-wide"
           :class="dbType === 'SQLite'
-            ? (resolved === 'light' ? 'bg-green-100 text-green-700' : 'bg-green-900/30 text-green-400')
-            : (resolved === 'light' ? 'bg-blue-100 text-blue-700' : 'bg-blue-900/30 text-blue-400')">
+            ? (resolved === 'light' ? 'bg-green-100/80 text-green-700' : 'bg-green-900/20 text-green-400')
+            : (resolved === 'light' ? 'bg-blue-100/80 text-blue-700' : 'bg-blue-900/20 text-blue-400')"
+          :style="{ border: '1px solid ' + (dbType === 'SQLite' ? (resolved === 'light' ? 'rgba(34,197,94,0.3)' : 'rgba(34,197,94,0.15)') : (resolved === 'light' ? 'rgba(59,130,246,0.3)' : 'rgba(59,130,246,0.15)')) }">
           {{ dbType }}
         </span>
 
         <!-- 主题切换按钮 -->
         <button @click="cycleTheme"
-          class="cursor-pointer ml-2 w-8 h-8 flex items-center justify-center rounded-lg text-sm transition-all hover:scale-110"
+          class="cursor-pointer ml-2 w-8 h-8 flex items-center justify-center rounded-lg text-sm transition-all duration-300 hover:scale-110"
           :style="{ background: 'var(--card-bg)', border: '1px solid var(--card-border)' }"
           :title="label">
           {{ icon }}
