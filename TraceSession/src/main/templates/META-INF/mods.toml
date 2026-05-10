@@ -48,7 +48,7 @@ config="${mod_id}.mixins.json"
 # A dependency - use the . to indicate dependency for a specific modid. Dependencies are optional.
 [[dependencies."${mod_id}"]] #optional
 # the modid of the dependency
-modId="neoforge" #mandatory
+modId="forge" #mandatory
 # The type of the dependency. Can be one of "required", "optional", "incompatible" or "discouraged" (case insensitive).
 # 'required' requires the mod to exist, 'optional' does not
 # 'incompatible' will prevent the game from loading when the mod exists, and 'discouraged' will show a warning

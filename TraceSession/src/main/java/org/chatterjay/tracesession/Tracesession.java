@@ -3,15 +3,16 @@ package org.chatterjay.tracesession;
 import com.google.gson.JsonObject;
 import com.mojang.logging.LogUtils;
 import net.minecraft.server.MinecraftServer;
-import net.neoforged.bus.api.IEventBus;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.ModContainer;
-import net.neoforged.fml.common.Mod;
-import net.neoforged.fml.config.ModConfig;
-import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.event.server.ServerStartingEvent;
-import net.neoforged.neoforge.event.server.ServerStoppingEvent;
-import net.neoforged.neoforge.event.tick.ServerTickEvent;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.server.ServerStartingEvent;
+import net.minecraftforge.event.server.ServerStoppingEvent;
+import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.ModList;
+import net.minecraftforge.fml.ModLoadingContext;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.config.ModConfig;
 import org.slf4j.Logger;
 
 import java.util.concurrent.Executors;
@@ -32,12 +33,14 @@ public class Tracesession
     private long lastTickTime = 0;
     private String modVersion;
 
-    public Tracesession(IEventBus modEventBus, ModContainer modContainer)
+    public Tracesession(IEventBus modEventBus)
     {
-        NeoForge.EVENT_BUS.register(new PlayerEventListener());
-        NeoForge.EVENT_BUS.register(this);
-        modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
-        modVersion = modContainer.getModInfo().getVersion().toString();
+        MinecraftForge.EVENT_BUS.register(new PlayerEventListener());
+        MinecraftForge.EVENT_BUS.register(this);
+        ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, Config.SPEC);
+        modVersion = ModList.get().getModContainerById(MODID)
+                .map(c -> c.getModInfo().getVersion().toString())
+                .orElse("1.0-SNAPSHOT");
     }
 
     public static ApiClient getApiClient()
@@ -107,14 +110,16 @@ public class Tracesession
     }
 
     @SubscribeEvent
-    public void onServerTick(ServerTickEvent.Post event)
+    public void onServerTick(TickEvent.ServerTickEvent event)
     {
-        long now = System.nanoTime();
-        if (lastTickTime != 0) {
-            currentMtps = (now - lastTickTime) / 1_000_000.0;
-            currentTps = currentMtps > 50.0 ? 1000.0 / currentMtps : 20.0;
+        if (event.phase == TickEvent.Phase.END) {
+            long now = System.nanoTime();
+            if (lastTickTime != 0) {
+                currentMtps = (now - lastTickTime) / 1_000_000.0;
+                currentTps = currentMtps > 50.0 ? 1000.0 / currentMtps : 20.0;
+            }
+            lastTickTime = now;
         }
-        lastTickTime = now;
     }
 
     @SubscribeEvent
