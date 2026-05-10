@@ -7,7 +7,7 @@
       返回
     </router-link>
 
-    <GlowCard cardClass="card p-4 sm:p-6" hoverClass="">
+    <GlowCard cardClass="card card-deco-bar card-deco-corner p-4 sm:p-6" hoverClass="">
       <div class="flex flex-col sm:flex-row items-center sm:items-center gap-4 sm:gap-5">
         <img :src="`https://mc-heads.net/avatar/${(player?.uuid || '').replace(/-/g, '')}/100`" :alt="player.name"
           class="w-14 h-14 sm:w-16 sm:h-16 rounded-xl ring-2 ring-gray-700 shrink-0"
@@ -55,17 +55,17 @@
       </button>
     </div>
 
-    <GlowCard cardClass="card p-4 sm:p-6" hoverClass="">
+    <GlowCard cardClass="card card-deco-side card-deco-foot p-4 sm:p-6" hoverClass="">
       <template v-if="chartTab === 'daily'">
-        <h3 class="text-base font-semibold mb-4 text-gray-200">近 30 天每日在线时长</h3>
+        <h3 class="text-base font-semibold mb-4 text-gray-200 deco-title">近 30 天每日在线时长</h3>
         <VChart :option="dailyOption" autoresize style="height:260px;width:100%" />
       </template>
       <template v-if="chartTab === 'weekly'">
-        <h3 class="text-base font-semibold mb-4 text-gray-200">近 12 周每周在线时长</h3>
+        <h3 class="text-base font-semibold mb-4 text-gray-200 deco-title">近 12 周每周在线时长</h3>
         <VChart :option="weeklyOption" autoresize style="height:260px;width:100%" />
       </template>
       <template v-if="chartTab === 'hourly'">
-        <h3 class="text-base font-semibold mb-4 text-gray-200">24 小时活跃时段分布</h3>
+        <h3 class="text-base font-semibold mb-4 text-gray-200 deco-title">24 小时活跃时段分布</h3>
         <VChart :option="hourlyOption" autoresize style="height:200px;width:100%" />
         <div class="flex justify-between text-xs text-gray-600 mt-2 px-2">
           <span>0点</span><span>4点</span><span>8点</span><span>12点</span><span>16点</span><span>20点</span><span>24点</span>
@@ -74,21 +74,21 @@
     </GlowCard>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 animate-fade-in-d2">
-      <GlowCard cardClass="card p-4 sm:p-6" hoverClass="">
-        <h3 class="text-base font-semibold mb-4 text-gray-200">星期分布</h3>
+      <GlowCard cardClass="card card-deco-dash card-deco-ring p-4 sm:p-6" hoverClass="">
+        <h3 class="text-base font-semibold mb-4 text-gray-200 deco-title">星期分布</h3>
         <div v-if="weekdayData.some(d => d.hours > 0)">
           <VChart :option="weekdayOption" autoresize style="height:260px;width:100%" />
         </div>
         <div v-else class="flex items-center justify-center h-[260px] text-gray-500 text-sm">暂无数据</div>
       </GlowCard>
-      <GlowCard cardClass="card p-4 sm:p-6" hoverClass="">
-        <h3 class="text-base font-semibold mb-4 text-gray-200">每日曲线</h3>
+      <GlowCard cardClass="card card-deco-bar card-deco-corner p-4 sm:p-6" hoverClass="">
+        <h3 class="text-base font-semibold mb-4 text-gray-200 deco-title">每日曲线</h3>
         <VChart :option="dailyOption2" autoresize style="height:260px;width:100%" />
       </GlowCard>
     </div>
 
-    <section class="animate-fade-in-d3">
-      <h3 class="text-lg font-semibold mb-3">最近会话</h3>
+    <GlowCard cardClass="card card-deco-side card-deco-ring p-4 space-y-3 animate-fade-in-d3" hoverClass="" radius="12px">
+      <h3 class="text-lg font-semibold text-gray-200 deco-title">最近会话</h3>
       <div class="card-list">
         <div class="min-w-[520px]">
           <div v-for="s in player.recentSessions" :key="s.id"
@@ -103,7 +103,7 @@
           <div v-if="player.recentSessions.length === 0" class="p-6 text-gray-500 text-center text-sm">暂无会话</div>
         </div>
       </div>
-    </section>
+    </GlowCard>
   </div>
 
   <div v-else class="flex items-center justify-center py-20">
@@ -123,6 +123,7 @@ import {
 } from "echarts/components";
 import VChart from "vue-echarts";
 import GlowCard from "../components/GlowCard.vue";
+import { CHART_COLORS, useTheme, useTooltipStyle, axisLabelStyle, axisYStyle, pieLabelStyle, pieLabelLineStyle } from "../composables/useChartTheme";
 import {
   fetchPlayer, fetchPlayerDailyStats, fetchPlayerWeeklyStats,
   fetchPlayerHourlyStats, fetchPlayerWeekdayStats,
@@ -132,7 +133,9 @@ import {
 use([CanvasRenderer, BarChart, LineChart, PieChart, GridComponent, TooltipComponent, LegendComponent, CalendarComponent]);
 
 const WEEKDAY_NAMES = ["周日", "周一", "周二", "周三", "周四", "周五", "周六"];
-const PIE_COLORS = ["#34d399", "#fbbf24", "#818cf8", "#f472b6", "#fb923c", "#a78bfa", "#2dd4bf", "#f87171"];
+
+const dark = useTheme();
+const tooltipStyle = useTooltipStyle();
 
 const route = useRoute();
 const uuid = route.params.uuid as string;
@@ -184,41 +187,42 @@ const weekdayData = computed(() => WEEKDAY_NAMES.map((name, i) => {
   return { name, hours: found ? +(found.totalSeconds / 3600).toFixed(1) : 0 };
 }));
 
-const tooltipStyle = {
-  backgroundColor: "rgba(17,24,39,0.95)",
-  borderColor: "rgba(139,92,246,0.25)",
-  borderRadius: 8,
-  boxShadow: "0 8px 24px rgba(0,0,0,0.5)",
-  textStyle: { color: "#e5e7eb", fontSize: 12 },
-};
 
-const dailyOption = computed(() => ({
-  tooltip: { ...tooltipStyle, trigger: "axis" as const, formatter: (p: any) => `${Number(p[0]?.value || 0).toFixed(1)} 小时` },
-  grid: { left: 40, right: 16, top: 8, bottom: 20 },
-  xAxis: { type: "category" as const, data: dailyData.value.map(d => d.date), axisLine: { show: false }, axisTick: { show: false }, axisLabel: { color: "#9ca3af", fontSize: 11 } },
-  yAxis: { type: "value" as const, name: "h", nameTextStyle: { color: "#9ca3af", fontSize: 11 }, axisLabel: { color: "#9ca3af", fontSize: 11 }, splitLine: { lineStyle: { color: "#374151", opacity: 0.5 } } },
-  series: [{
-    type: "line" as const, data: dailyData.value.map(d => d.hours),
-    smooth: true, showSymbol: false,
-    lineStyle: { color: "#fbbf24", width: 2 },
-    areaStyle: { color: { type: "linear" as const, x: 0, y: 0, x2: 0, y2: 1, colorStops: [{ offset: 0, color: "rgba(251,191,36,0.25)" }, { offset: 1, color: "rgba(251,191,36,0)" }] } },
-  }],
-}));
+const dailyOption = computed(() => {
+  const al = axisLabelStyle(dark.value);
+  const ay = axisYStyle(dark.value);
+  return {
+    tooltip: { ...tooltipStyle.value, trigger: "axis" as const, formatter: (p: any) => `${Number(p[0]?.value || 0).toFixed(1)} 小时` },
+    grid: { left: 40, right: 16, top: 8, bottom: 20 },
+    xAxis: { type: "category" as const, data: dailyData.value.map(d => d.date), axisLine: { show: false }, axisTick: { show: false }, axisLabel: al },
+    yAxis: { type: "value" as const, name: "h", ...ay },
+    series: [{
+      type: "line" as const, data: dailyData.value.map(d => d.hours),
+      smooth: true, showSymbol: false,
+      lineStyle: { color: "#fbbf24", width: 2 },
+      areaStyle: { color: { type: "linear" as const, x: 0, y: 0, x2: 0, y2: 1, colorStops: [{ offset: 0, color: "rgba(251,191,36,0.25)" }, { offset: 1, color: "rgba(251,191,36,0)" }] } },
+    }],
+  };
+});
 
-const weeklyOption = computed(() => ({
-  tooltip: { ...tooltipStyle, trigger: "axis" as const, formatter: (p: any) => `${Number(p[0]?.value || 0).toFixed(1)} 小时` },
-  grid: { left: 40, right: 16, top: 8, bottom: 20 },
-  xAxis: { type: "category" as const, data: weeklyData.value.map(w => w.week), axisLine: { show: false }, axisTick: { show: false }, axisLabel: { color: "#9ca3af", fontSize: 11 } },
-  yAxis: { type: "value" as const, name: "h", nameTextStyle: { color: "#9ca3af", fontSize: 11 }, axisLabel: { color: "#9ca3af", fontSize: 11 }, splitLine: { lineStyle: { color: "#374151", opacity: 0.5 } } },
-  series: [{
-    type: "bar" as const, data: weeklyData.value.map(w => w.hours),
-    itemStyle: { color: "#34d399", borderRadius: [4, 4, 0, 0] },
-    barMaxWidth: 40,
-  }],
-}));
+const weeklyOption = computed(() => {
+  const al = axisLabelStyle(dark.value);
+  const ay = axisYStyle(dark.value);
+  return {
+    tooltip: { ...tooltipStyle.value, trigger: "axis" as const, formatter: (p: any) => `${Number(p[0]?.value || 0).toFixed(1)} 小时` },
+    grid: { left: 40, right: 16, top: 8, bottom: 20 },
+    xAxis: { type: "category" as const, data: weeklyData.value.map(w => w.week), axisLine: { show: false }, axisTick: { show: false }, axisLabel: al },
+    yAxis: { type: "value" as const, name: "h", ...ay },
+    series: [{
+      type: "bar" as const, data: weeklyData.value.map(w => w.hours),
+      itemStyle: { color: "#34d399", borderRadius: [4, 4, 0, 0] },
+      barMaxWidth: 40,
+    }],
+  };
+});
 
 const hourlyOption = computed(() => ({
-  tooltip: { ...tooltipStyle, trigger: "axis" as const, formatter: (p: any) => `${Number(p[0]?.value || 0).toFixed(1)} 小时` },
+  tooltip: { ...tooltipStyle.value, trigger: "axis" as const, formatter: (p: any) => `${Number(p[0]?.value || 0).toFixed(1)} 小时` },
   grid: { left: 4, right: 4, top: 4, bottom: 0 },
   xAxis: { type: "category" as const, data: hourlyData.value.map(h => h.hour), axisLine: { show: false }, axisTick: { show: false }, axisLabel: { show: false } },
   yAxis: { type: "value" as const, show: false },
@@ -230,29 +234,33 @@ const hourlyOption = computed(() => ({
 }));
 
 const weekdayOption = computed(() => ({
-  tooltip: { ...tooltipStyle, trigger: "item" as const, formatter: (p: any) => `${p.name}: ${Number(p.value || 0).toFixed(1)} 小时` },
+  tooltip: { ...tooltipStyle.value, trigger: "item" as const, formatter: (p: any) => `${p.name}: ${Number(p.value || 0).toFixed(1)} 小时` },
   series: [{
     type: "pie" as const,
-    data: weekdayData.value.filter(d => d.hours > 0).map((d, i) => ({ value: d.hours, name: d.name, itemStyle: { color: PIE_COLORS[i % PIE_COLORS.length] } })),
+    data: weekdayData.value.filter(d => d.hours > 0).map((d, i) => ({ value: d.hours, name: d.name, itemStyle: { color: CHART_COLORS[i % CHART_COLORS.length] } })),
     center: ["50%", "50%"],
     radius: ["0%", "70%"],
-    label: { color: "#9ca3af", fontSize: 11, formatter: (p: any) => `${p.name} ${Number(p.value || 0).toFixed(1)}h` },
-    labelLine: { lineStyle: { color: "#4b5563" } },
+    label: { ...pieLabelStyle(dark.value), formatter: (p: any) => `${p.name} ${Number(p.value || 0).toFixed(1)}h` },
+    labelLine: pieLabelLineStyle(dark.value),
   }],
 }));
 
-const dailyOption2 = computed(() => ({
-  tooltip: { ...tooltipStyle, trigger: "axis" as const, formatter: (p: any) => `${Number(p[0]?.value || 0).toFixed(1)} 小时` },
-  grid: { left: 36, right: 16, top: 8, bottom: 20 },
-  xAxis: { type: "category" as const, data: dailyData.value.map(d => d.date), axisLine: { show: false }, axisTick: { show: false }, axisLabel: { color: "#9ca3af", fontSize: 11 } },
-  yAxis: { type: "value" as const, name: "h", nameTextStyle: { color: "#9ca3af", fontSize: 11 }, axisLabel: { color: "#9ca3af", fontSize: 11 }, splitLine: { lineStyle: { color: "#374151", opacity: 0.5 } } },
-  series: [{
-    type: "line" as const, data: dailyData.value.map(d => d.hours),
-    smooth: true, showSymbol: false,
-    lineStyle: { color: "#34d399", width: 2 },
-    areaStyle: { color: { type: "linear" as const, x: 0, y: 0, x2: 0, y2: 1, colorStops: [{ offset: 0, color: "rgba(52,211,153,0.2)" }, { offset: 1, color: "rgba(52,211,153,0)" }] } },
-  }],
-}));
+const dailyOption2 = computed(() => {
+  const al = axisLabelStyle(dark.value);
+  const ay = axisYStyle(dark.value);
+  return {
+    tooltip: { ...tooltipStyle.value, trigger: "axis" as const, formatter: (p: any) => `${Number(p[0]?.value || 0).toFixed(1)} 小时` },
+    grid: { left: 36, right: 16, top: 8, bottom: 20 },
+    xAxis: { type: "category" as const, data: dailyData.value.map(d => d.date), axisLine: { show: false }, axisTick: { show: false }, axisLabel: al },
+    yAxis: { type: "value" as const, name: "h", ...ay },
+    series: [{
+      type: "line" as const, data: dailyData.value.map(d => d.hours),
+      smooth: true, showSymbol: false,
+      lineStyle: { color: "#34d399", width: 2 },
+      areaStyle: { color: { type: "linear" as const, x: 0, y: 0, x2: 0, y2: 1, colorStops: [{ offset: 0, color: "rgba(52,211,153,0.2)" }, { offset: 1, color: "rgba(52,211,153,0)" }] } },
+    }],
+  };
+});
 
 let timer: ReturnType<typeof setInterval> | null = null;
 

@@ -1,7 +1,6 @@
-// ── Color variables ──
-$neon-purple: rgba(139, 92, 246);
-$neon-pink: rgba(236, 72, 153);
-$neon-teal: rgba(52, 211, 153);
+@use "colors" as *;
+
+// ── Design tokens (non-color) ──
 $card-radius: 14px;
 $card-radius-sm: 12px;
 $ease-smooth: cubic-bezier(0.22, 1, 0.36, 1);
@@ -9,72 +8,6 @@ $ease-smooth: cubic-bezier(0.22, 1, 0.36, 1);
 @mixin blur($px) {
   backdrop-filter: blur(#{$px});
   -webkit-backdrop-filter: blur(#{$px});
-}
-
-/* ── 主题变量 (默认为深色) ── */
-:root {
-  --bg-body: #030712;
-  --bg-glow-1: #{rgba($neon-purple, 0.12)};
-  --bg-glow-2: #{rgba($neon-pink, 0.06)};
-  --bg-glow-3: #{rgba($neon-teal, 0.04)};
-  --grid-line: rgba(255, 255, 255, 0.015);
-  --grid-dot: rgba(255, 255, 255, 0.02);
-  --card-bg: rgba(17, 24, 39, 0.25);
-  --card-stat-bg: rgba(17, 24, 39, 0.2);
-  --card-list-bg: rgba(17, 24, 39, 0.15);
-  --card-border: #{rgba($neon-purple, 0.12)};
-  --card-border-hover: #{rgba($neon-purple, 0.35)};
-  --card-border-stat: #{rgba($neon-purple, 0.1)};
-  --card-border-list: #{rgba($neon-purple, 0.08)};
-  --card-shadow: rgba(0, 0, 0, 0.5);
-  --card-shadow-glow: #{rgba($neon-purple, 0.12)};
-  --header-bg: rgba(3, 7, 18, 0.2);
-  --header-border: #{rgba($neon-purple, 0.15)};
-  --text-muted: #6b7280;
-  --color-gray-50: #f9fafb;
-  --color-gray-100: #f3f4f6;
-  --color-gray-200: #e5e7eb;
-  --color-gray-300: #d1d5db;
-  --color-gray-400: #9ca3af;
-  --color-gray-500: #9ca3af;
-  --color-gray-600: #8892a0;
-  --color-gray-700: #6b7280;
-  --color-gray-800: #4b5563;
-  --color-gray-900: #374151;
-  --color-gray-950: #1f2937;
-}
-
-/* ── 浅色主题 ── */
-[data-theme="light"] {
-  --bg-body: #f3f4f6;
-  --bg-glow-1: #{rgba($neon-purple, 0.15)};
-  --bg-glow-2: #{rgba($neon-pink, 0.08)};
-  --bg-glow-3: #{rgba($neon-teal, 0.06)};
-  --grid-line: rgba(0, 0, 0, 0.025);
-  --grid-dot: rgba(0, 0, 0, 0.02);
-  --card-bg: rgba(255, 255, 255, 0.4);
-  --card-stat-bg: rgba(255, 255, 255, 0.35);
-  --card-list-bg: rgba(255, 255, 255, 0.25);
-  --card-border: #{rgba($neon-purple, 0.15)};
-  --card-border-hover: #{rgba($neon-purple, 0.35)};
-  --card-border-stat: #{rgba($neon-purple, 0.12)};
-  --card-border-list: #{rgba($neon-purple, 0.1)};
-  --card-shadow: rgba(0, 0, 0, 0.08);
-  --card-shadow-glow: #{rgba($neon-purple, 0.1)};
-  --header-bg: rgba(255, 255, 255, 0.35);
-  --header-border: #{rgba($neon-purple, 0.15)};
-  --text-muted: #9ca3af;
-  --color-gray-50: #f9fafb;
-  --color-gray-100: #f3f4f6;
-  --color-gray-200: #374151;
-  --color-gray-300: #4b5563;
-  --color-gray-400: #6b7280;
-  --color-gray-500: #6b7280;
-  --color-gray-600: #4b5563;
-  --color-gray-700: #374151;
-  --color-gray-800: #f3f4f6;
-  --color-gray-900: #f9fafb;
-  --color-gray-950: #ffffff;
 }
 
 /* ── 主题平滑过渡 ── */
@@ -90,10 +23,10 @@ $ease-smooth: cubic-bezier(0.22, 1, 0.36, 1);
 /* ── 背景 ── */
 body {
   background:
-    radial-gradient(ellipse 70% 40% at 30% 10%, var(--bg-glow-1), transparent),
-    radial-gradient(ellipse 50% 35% at 70% 90%, var(--bg-glow-2), transparent),
-    radial-gradient(ellipse 40% 30% at 50% 50%, var(--bg-glow-3), transparent),
-    var(--bg-body);
+    radial-gradient(ellipse 70% 40% at 30% 10%, var(--glow-primary), transparent),
+    radial-gradient(ellipse 50% 35% at 70% 90%, var(--glow-secondary), transparent),
+    radial-gradient(ellipse 40% 30% at 50% 50%, var(--glow-success), transparent),
+    var(--surface-body);
   background-attachment: fixed;
   animation: bgDrift 40s ease-in-out infinite;
 
@@ -131,9 +64,9 @@ body {
 
 // ── Card system ──
 .card {
-  background: var(--card-bg);
+  background: var(--surface-card);
   @include blur(24px);
-  border: 1px solid var(--card-border);
+  border: 1px solid var(--border-card);
   border-radius: $card-radius;
   will-change: transform, box-shadow, border-color;
 
@@ -144,9 +77,9 @@ body {
 
     &:hover {
       transform: translateY(-4px);
-      box-shadow: 0 20px 60px var(--card-shadow),
-                  0 0 30px var(--card-shadow-glow);
-      border-color: var(--card-border-hover);
+      box-shadow: 0 20px 60px var(--shadow-card),
+                  0 0 30px var(--shadow-glow);
+      border-color: var(--border-card-hover);
     }
   }
 }
@@ -154,53 +87,175 @@ body {
 // ── Stat cards ──
 .card-stat {
   position: relative;
-  background: var(--card-stat-bg);
+  background: var(--surface-card-stat);
   @include blur(20px);
-  border: 1px solid var(--card-border-stat);
+  border: 1px solid var(--border-card-stat);
   border-radius: $card-radius;
   overflow: hidden;
   transition: transform 0.4s $ease-smooth,
               box-shadow 0.4s $ease-smooth;
 
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 16px 40px var(--shadow-card),
+                0 0 20px var(--shadow-glow);
+  }
+}
+
+// ── Card list (table-like) ──
+.card-list {
+  background: var(--surface-card-list);
+  @include blur(12px);
+  border: 1px solid var(--border-card-list);
+  border-radius: $card-radius-sm;
+  overflow-x: auto;
+}
+
+// ── Card Decorative Elements ──
+// NOTE: Each card can have AT MOST ONE from group A (::before) and ONE from group B (::after)
+
+// Group A — using ::before (pick 1 per card)
+
+// Top-left colored accent bar (horizontal)
+.card-deco-bar {
   &::before {
     content: "";
     position: absolute;
     top: 0;
+    left: 16px;
+    width: 32px;
+    height: 2px;
+    background: linear-gradient(90deg, $purple, $pink);
+    opacity: 0.3;
+    pointer-events: none;
+    z-index: 0;
+    border-radius: 0 0 2px 2px;
+  }
+}
+
+// Left edge vertical gradient stripe
+.card-deco-side {
+  &::before {
+    content: "";
+    position: absolute;
+    top: 12px;
+    bottom: 12px;
     left: 0;
-    right: 0;
-    height: 3px;
-    border-radius: $card-radius $card-radius 0 0;
-    opacity: 0.8;
-  }
-
-  &:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 16px 40px var(--card-shadow),
-                0 0 20px var(--card-shadow-glow);
+    width: 2px;
+    background: linear-gradient(180deg, $purple, transparent 70%);
+    opacity: 0.2;
+    pointer-events: none;
+    z-index: 0;
+    border-radius: 0 2px 2px 0;
   }
 }
 
-// Accent stripes
-@mixin accent-stripe($from, $to) {
-  .card-stat-accent-#{$from}::before {
-    background: linear-gradient(90deg, $to);
+// Top-center short dash
+.card-deco-dash {
+  &::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 24px;
+    height: 2px;
+    background: $purple;
+    opacity: 0.2;
+    pointer-events: none;
+    z-index: 0;
+    border-radius: 0 0 2px 2px;
   }
 }
-.card-stat-accent-amber::before { background: linear-gradient(90deg, #fbbf24, #f59e0b); }
-.card-stat-accent-green::before { background: linear-gradient(90deg, #34d399, #10b981); }
-.card-stat-accent-blue::before { background: linear-gradient(90deg, #60a5fa, #3b82f6); }
-.card-stat-accent-cyan::before { background: linear-gradient(90deg, #22d3ee, #06b6d4); }
-.card-stat-accent-purple::before { background: linear-gradient(90deg, #a78bfa, #8b5cf6); }
-.card-stat-accent-pink::before { background: linear-gradient(90deg, #f472b6, #ec4899); }
-.card-stat-accent-red::before { background: linear-gradient(90deg, #f87171, #ef4444); }
 
-// ── Card list ──
-.card-list {
-  background: var(--card-list-bg);
-  @include blur(12px);
-  border: 1px solid var(--card-border-list);
-  border-radius: $card-radius-sm;
-  overflow-x: auto;
+// Group B — using ::after (pick 1 per card)
+
+// Bottom decorative gradient line
+.card-deco-foot {
+  &::after {
+    content: "";
+    position: absolute;
+    bottom: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 48px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--color-primary), transparent);
+    opacity: 0.12;
+    pointer-events: none;
+    z-index: 0;
+  }
+}
+
+// Top-right corner bracket (terminal-style L-shape)
+.card-deco-corner {
+  &::after {
+    content: "";
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 14px;
+    height: 14px;
+    border-top: 1.5px solid var(--border-card);
+    border-right: 1.5px solid var(--border-card);
+    border-radius: 0 3px 0 0;
+    opacity: 0.4;
+    pointer-events: none;
+    z-index: 0;
+  }
+}
+
+// Bottom-right circle ring
+.card-deco-ring {
+  &::after {
+    content: "";
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    width: 28px;
+    height: 28px;
+    border: 1px solid var(--border-card);
+    border-radius: 50%;
+    opacity: 0.2;
+    pointer-events: none;
+    z-index: 0;
+  }
+}
+
+// Bottom-right rotated square watermark
+.card-deco-watermark {
+  &::after {
+    content: "";
+    position: absolute;
+    bottom: 10px;
+    right: 12px;
+    width: 22px;
+    height: 22px;
+    border: 1.5px solid var(--color-primary);
+    opacity: 0.05;
+    pointer-events: none;
+    z-index: 0;
+    transform: rotate(45deg);
+    border-radius: 2px;
+  }
+}
+
+// Section header decoration — small colored dot before titles
+.deco-title {
+  position: relative;
+  padding-left: 16px;
+}
+.deco-title::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: $purple;
+  opacity: 0.45;
 }
 
 // ── Animations ──
@@ -209,8 +264,8 @@ body {
   to { opacity: 1; transform: translateY(0); }
 }
 @keyframes pulse-glow {
-  0%, 100% { box-shadow: 0 0 6px rgba($neon-teal, 0.4); }
-  50% { box-shadow: 0 0 18px rgba($neon-teal, 0.9), 0 0 30px rgba($neon-teal, 0.3); }
+  0%, 100% { box-shadow: 0 0 6px rgba($teal, 0.4); }
+  50% { box-shadow: 0 0 18px rgba($teal, 0.9), 0 0 30px rgba($teal, 0.3); }
 }
 @keyframes bgDrift {
   0% { background-position: 50% -20%, 80% 80%, 50% 50%; }
@@ -229,7 +284,7 @@ body {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: $neon-teal;
+  background: $teal;
   animation: pulse-glow 1.5s ease-in-out infinite;
 }
 
@@ -240,16 +295,16 @@ body {
 
   &-track { background: transparent; }
   &-thumb {
-    background: #{rgba($neon-purple, 0.2)};
+    background: #{rgba($purple, 0.2)};
     border-radius: 3px;
 
-    &:hover { background: rgba($neon-purple, 0.35); }
+    &:hover { background: rgba($purple, 0.35); }
   }
 }
 
 * {
   scrollbar-width: thin;
-  scrollbar-color: rgba($neon-purple, 0.2) transparent;
+  scrollbar-color: rgba($purple, 0.2) transparent;
 }
 
 // ── Tooltip ──
@@ -269,7 +324,7 @@ body {
   pointer-events: none;
   background: rgba(31, 41, 55, 0.95);
   @include blur(8px);
-  border: 1px solid rgba($neon-purple, 0.25);
+  border: 1px solid rgba($purple, 0.25);
   color: #e5e7eb;
 
   &::after {
@@ -287,7 +342,7 @@ body {
 .terminal {
   &-box {
     background: rgba(0, 0, 0, 0.35);
-    border: 1px solid var(--card-border);
+    border: 1px solid var(--border-card);
     border-radius: 10px;
     overflow: hidden;
     font-family: "Courier New", "Fira Code", monospace;
@@ -308,7 +363,7 @@ body {
     line-height: 1.6;
   }
   &-prompt {
-    color: $neon-teal;
+    color: $teal;
     font-weight: bold;
     flex-shrink: 0;
   }
@@ -324,7 +379,7 @@ body {
     align-items: center;
     gap: 8px;
     padding: 8px 14px;
-    border-top: 1px solid var(--card-border);
+    border-top: 1px solid var(--border-card);
     background: rgba(0, 0, 0, 0.15);
   }
   &-input {
@@ -339,9 +394,9 @@ body {
     &::placeholder { color: #6b7280; }
   }
   &-btn {
-    background: rgba($neon-purple, 0.15);
+    background: rgba($purple, 0.15);
     color: #a78bfa;
-    border: 1px solid rgba($neon-purple, 0.25);
+    border: 1px solid rgba($purple, 0.25);
     border-radius: 6px;
     padding: 3px 12px;
     font-size: 12px;
@@ -350,8 +405,8 @@ body {
     transition: all 0.25s ease;
 
     &:hover:not(:disabled) {
-      background: rgba($neon-purple, 0.25);
-      box-shadow: 0 0 12px rgba($neon-purple, 0.15);
+      background: rgba($purple, 0.25);
+      box-shadow: 0 0 12px rgba($purple, 0.15);
     }
     &:disabled {
       opacity: 0.3;

@@ -1,13 +1,13 @@
 <template>
   <div
     ref="cardRef"
-    class="relative overflow-hidden rounded-xl"
+    class="relative overflow-hidden"
     :class="[hoverClass, cardClass]"
     @mousemove="onMouseMove"
     @mouseleave="onMouseLeave"
   >
     <div
-      class="pointer-events-none absolute -inset-[1px] -z-0 rounded-xl transition-opacity duration-700 ease-out"
+      class="pointer-events-none absolute inset-0 -z-0 rounded-xl transition-opacity duration-700 ease-out"
       :class="glowVisible ? 'opacity-100' : 'opacity-0'"
       :style="glowBorderStyle"
     />
@@ -51,10 +51,10 @@ function onMouseLeave() {
 }
 
 const glowBgStyle = computed(() => ({
-  background: `radial-gradient(350px circle at ${mouseX.value}px ${mouseY.value}px, rgba(139, 92, 246, 0.05), rgba(236, 72, 153, 0.025), transparent 60%)`,
+  background: `radial-gradient(350px circle at ${mouseX.value}px ${mouseY.value}px, var(--glow-card-bg-1), var(--glow-card-bg-2), transparent 60%)`,
 }));
 
 const glowBorderStyle = computed(() => ({
-  background: `radial-gradient(200px circle at ${mouseX.value}px ${mouseY.value}px, rgba(139, 92, 246, 0.15), rgba(236, 72, 153, 0.08), transparent 60%)`,
+  background: `radial-gradient(80px circle at ${mouseX.value}px ${mouseY.value}px, var(--glow-card-border-1), var(--glow-card-border-2), transparent 60%)`,
 }));
 </script>

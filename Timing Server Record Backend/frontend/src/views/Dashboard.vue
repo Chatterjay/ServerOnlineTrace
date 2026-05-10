@@ -13,7 +13,7 @@
       </button>
     </div>
     <div class="grid grid-cols-2 sm:grid-cols-5 gap-3 animate-fade-in">
-      <GlowCard cardClass="card-stat card-stat-accent-amber p-4 text-center !overflow-visible" hoverClass="">
+      <GlowCard cardClass="card-stat card-stat-accent-amber card-deco-corner p-4 text-center !overflow-visible" hoverClass="">
         <div class="text-2xl sm:text-3xl font-bold text-amber-400">{{ stats.total }}</div>
         <div class="text-xs text-gray-500 mt-1 flex items-center justify-center gap-1">
           服务器总数
@@ -23,7 +23,7 @@
           </span>
         </div>
       </GlowCard>
-      <GlowCard cardClass="card-stat card-stat-accent-green p-4 text-center !overflow-visible" hoverClass="">
+      <GlowCard cardClass="card-stat card-stat-accent-green card-deco-ring p-4 text-center !overflow-visible" hoverClass="">
         <div class="text-2xl sm:text-3xl font-bold text-green-400">{{ stats.online }}</div>
         <div class="text-xs text-gray-500 mt-1 flex items-center justify-center gap-1">
           在线服务器
@@ -33,7 +33,7 @@
           </span>
         </div>
       </GlowCard>
-      <GlowCard cardClass="card-stat card-stat-accent-blue p-4 text-center !overflow-visible" hoverClass="">
+      <GlowCard cardClass="card-stat card-stat-accent-blue card-deco-watermark p-4 text-center !overflow-visible" hoverClass="">
         <div class="text-2xl sm:text-3xl font-bold text-blue-400">{{ stats.players }}</div>
         <div class="text-xs text-gray-500 mt-1 flex items-center justify-center gap-1">
           玩家总数
@@ -43,7 +43,7 @@
           </span>
         </div>
       </GlowCard>
-      <GlowCard cardClass="card-stat card-stat-accent-cyan p-4 text-center !overflow-visible" hoverClass="">
+      <GlowCard cardClass="card-stat card-stat-accent-cyan card-deco-corner p-4 text-center !overflow-visible" hoverClass="">
         <div class="text-2xl sm:text-3xl font-bold text-cyan-400">{{ stats.sessions }}</div>
         <div class="text-xs text-gray-500 mt-1 flex items-center justify-center gap-1">
           会话总数
@@ -53,7 +53,7 @@
           </span>
         </div>
       </GlowCard>
-      <GlowCard cardClass="card-stat card-stat-accent-purple p-4 text-center !overflow-visible" hoverClass="">
+      <GlowCard cardClass="card-stat card-stat-accent-purple card-deco-ring p-4 text-center !overflow-visible" hoverClass="">
         <div class="text-2xl sm:text-3xl font-bold text-purple-400">{{ stats.events }}</div>
         <div class="text-xs text-gray-500 mt-1 flex items-center justify-center gap-1">
           事件总数
@@ -67,7 +67,7 @@
 
     <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
       <div class="lg:col-span-3 space-y-3 animate-fade-in-d1">
-        <h3 class="text-base font-semibold text-gray-200 flex items-center gap-2">
+        <h3 class="text-base font-semibold text-gray-200 deco-title flex items-center gap-2">
           服务器列表
           <span class="text-xs text-gray-600 font-normal">({{ servers.length }})</span>
         </h3>
@@ -116,8 +116,8 @@
         <div v-if="servers.length === 0" class="card p-6 text-center text-gray-500 text-sm">暂无服务器数据</div>
       </div>
 
-      <div class="lg:col-span-2 space-y-3 animate-fade-in-d2">
-        <h3 class="text-base font-semibold text-gray-200 flex items-center gap-2">
+      <GlowCard cardClass="card card-deco-side card-deco-ring lg:col-span-2 p-4 space-y-3 animate-fade-in-d2" hoverClass="" radius="12px">
+        <h3 class="text-base font-semibold text-gray-200 deco-title flex items-center gap-2">
           实时事件
           <span class="text-xs text-gray-600 font-normal">最新 {{ events.length }}</span>
           <button @click="showServerNote = !showServerNote"
@@ -147,7 +147,7 @@
             <div v-if="events.length === 0" class="p-6 text-gray-500 text-center text-sm">暂无事件</div>
           </div>
         </div>
-      </div>
+      </GlowCard>
     </div>
   </div>
 </template>

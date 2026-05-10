@@ -7,7 +7,7 @@
       返回
     </router-link>
 
-    <GlowCard cardClass="card p-4 sm:p-6" hoverClass="">
+    <GlowCard cardClass="card card-deco-bar card-deco-corner p-4 sm:p-6" hoverClass="">
       <h2 class="text-xl font-bold text-gray-200 mb-2">关于 TraceSession</h2>
       <p class="text-sm text-gray-400 leading-relaxed">
         TraceSession 是一个 Minecraft 服务器在线时长追踪系统，包含一个 NeoForge 模组用于采集数据，
@@ -15,7 +15,7 @@
       </p>
     </GlowCard>
 
-    <GlowCard cardClass="card p-4 sm:p-6" hoverClass="">
+    <GlowCard cardClass="card card-deco-side card-deco-ring p-4 sm:p-6" hoverClass="">
       <h3 class="text-base font-semibold mb-3 text-cyan-400 flex items-center gap-2">
         <svg class="w-4 h-4" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="3"/><path d="M8 1v3M8 12v3M1 8h3M12 8h3"/></svg>
         服务器与网站连接机制
@@ -43,7 +43,7 @@
       </div>
     </GlowCard>
 
-    <GlowCard cardClass="card p-4 sm:p-6" hoverClass="">
+    <GlowCard cardClass="card card-deco-dash card-deco-corner p-4 sm:p-6" hoverClass="">
       <h3 class="text-base font-semibold mb-3 flex items-center gap-2"
         :class="dbInfo ? (dbInfo.type === 'SQLite' ? 'text-green-400' : 'text-blue-400') : 'text-gray-400'">
         <svg class="w-4 h-4" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
@@ -143,7 +143,7 @@
     </GlowCard>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-      <GlowCard cardClass="card p-4 sm:p-6" hoverClass="">
+      <GlowCard cardClass="card card-deco-bar card-deco-ring p-4 sm:p-6" hoverClass="">
         <h3 class="text-base font-semibold mb-3 text-amber-400 flex items-center gap-2">
           <svg class="w-4 h-4" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="12" height="12" rx="2"/><path d="M5 8l2 2 4-4"/></svg>
           服务器管理
@@ -158,7 +158,7 @@
         </ul>
       </GlowCard>
 
-      <GlowCard cardClass="card p-4 sm:p-6" hoverClass="">
+      <GlowCard cardClass="card card-deco-side card-deco-corner p-4 sm:p-6" hoverClass="">
         <h3 class="text-base font-semibold mb-3 text-green-400 flex items-center gap-2">
           <svg class="w-4 h-4" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 1v14M1 8h14"/><circle cx="8" cy="8" r="3"/></svg>
           玩家分析
@@ -173,7 +173,7 @@
         </ul>
       </GlowCard>
 
-      <GlowCard cardClass="card p-4 sm:p-6" hoverClass="">
+      <GlowCard cardClass="card card-deco-dash card-deco-ring p-4 sm:p-6" hoverClass="">
         <h3 class="text-base font-semibold mb-3 text-blue-400 flex items-center gap-2">
           <svg class="w-4 h-4" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 8a6 6 0 0 1 12 0"/><path d="M2 8a6 6 0 0 0 12 0"/><circle cx="8" cy="8" r="2"/></svg>
           实时监控
@@ -186,7 +186,7 @@
         </ul>
       </GlowCard>
 
-      <GlowCard cardClass="card p-4 sm:p-6" hoverClass="">
+      <GlowCard cardClass="card card-deco-bar card-deco-corner p-4 sm:p-6" hoverClass="">
         <h3 class="text-base font-semibold mb-3 text-purple-400 flex items-center gap-2">
           <svg class="w-4 h-4" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 3h8v10H4zM7 6h2v1H7zM7 8h2v1H7z"/></svg>
           技术栈

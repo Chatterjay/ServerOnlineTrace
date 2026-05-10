@@ -1,0 +1,257 @@
+@use 'sass:list';
+
+// ═══════════════════════════════════════════
+// TraceSession Color System — 色彩规范
+// ═══════════════════════════════════════════
+
+// ── Brand Colors ──
+$purple: #8b5cf6;   // Primary
+$pink: #ec4899;     // Secondary
+$teal: #34d399;     // Success / live indicator
+$amber: #f59e0b;    // Warning / highlight
+$red: #ef4444;      // Danger
+$blue: #3b82f6;     // Info
+$cyan: #06b6d4;     // Info alt
+
+// ── Extended Palette ──
+$purple-soft: #a78bfa;
+$purple-dark: #7c3aed;
+$pink-soft: #f472b6;
+$teal-soft: #2dd4bf;
+$teal-dark: #10b981;
+$amber-soft: #fbbf24;
+$amber-dark: #d97706;
+$blue-soft: #60a5fa;
+$cyan-soft: #22d3ee;
+$red-soft: #f87171;
+
+// ── Chart 8-Color Palette ──
+$chart-1: $teal;
+$chart-2: $amber-soft;
+$chart-3: #818cf8;  // indigo-400
+$chart-4: $pink-soft;
+$chart-5: #fb923c;  // orange-400
+$chart-6: $purple-soft;
+$chart-7: $cyan-soft;
+$chart-8: $red-soft;
+$chart-colors: $chart-1, $chart-2, $chart-3, $chart-4, $chart-5, $chart-6, $chart-7, $chart-8;
+
+// ── Accent Stripes Map ──
+$accents: (
+  "amber": ($amber-soft, $amber-dark),
+  "green": ($teal, $teal-dark),
+  "blue": ($blue-soft, $blue),
+  "cyan": ($cyan-soft, $cyan),
+  "purple": ($purple-soft, $purple),
+  "pink": ($pink-soft, $pink),
+  "red": ($red-soft, $red),
+);
+
+// ═══════════════════════════════════════════
+// Dark Theme  (默认)
+// ═══════════════════════════════════════════
+:root {
+  // ── Brand ──
+  --color-primary: #{$purple};
+  --color-primary-soft: #{rgba($purple, 0.12)};
+  --color-primary-hover: #{rgba($purple, 0.35)};
+  --color-secondary: #{$pink};
+  --color-success: #{$teal};
+  --color-warning: #{$amber};
+  --color-danger: #{$red};
+  --color-info: #{$blue};
+
+  // ── Surface ──
+  --surface-body: #030712;
+  --surface-card: rgba(17, 24, 39, 0.25);
+  --surface-card-stat: rgba(17, 24, 39, 0.2);
+  --surface-card-list: rgba(17, 24, 39, 0.15);
+  --surface-header: rgba(3, 7, 18, 0.2);
+  --surface-tooltip: rgba(31, 41, 55, 0.95);
+
+  // ── Border ──
+  --border-card: #{rgba($purple, 0.12)};
+  --border-card-hover: #{rgba($purple, 0.35)};
+  --border-card-stat: #{rgba($purple, 0.1)};
+  --border-card-list: #{rgba($purple, 0.08)};
+  --border-header: #{rgba($purple, 0.15)};
+
+  // ── Shadow ──
+  --shadow-card: rgba(0, 0, 0, 0.5);
+  --shadow-glow: #{rgba($purple, 0.12)};
+
+  // ── Text ──
+  --text-primary: #f3f4f6;
+  --text-secondary: #e5e7eb;
+  --text-muted: #6b7280;
+  --text-inverse: #030712;
+
+  // ── Background Glow Layers ──
+  --glow-primary: #{rgba($purple, 0.12)};
+  --glow-secondary: #{rgba($pink, 0.06)};
+  --glow-success: #{rgba($teal, 0.04)};
+
+  // ── Glow Card (mouse-follow highlight) ──
+  --glow-card-border-1: #{rgba($purple, 0.35)};
+  --glow-card-border-2: #{rgba($pink, 0.15)};
+  --glow-card-bg-1: #{rgba($purple, 0.05)};
+  --glow-card-bg-2: #{rgba($pink, 0.025)};
+
+  // ── Grid ──
+  --grid-line: rgba(255, 255, 255, 0.015);
+  --grid-dot: rgba(255, 255, 255, 0.02);
+
+  // ── Chart Tooltip ──
+  --chart-tooltip-bg: rgba(17, 24, 39, 0.95);
+  --chart-tooltip-border: #{rgba($purple, 0.25)};
+
+  // ── Chart Color Sequence (reading via JS) ──
+  --chart-color-1: #{$chart-1};
+  --chart-color-2: #{$chart-2};
+  --chart-color-3: #{$chart-3};
+  --chart-color-4: #{$chart-4};
+  --chart-color-5: #{$chart-5};
+  --chart-color-6: #{$chart-6};
+  --chart-color-7: #{$chart-7};
+  --chart-color-8: #{$chart-8};
+
+  // ── Gray Palette (Tailwind 4 overrides) ──
+  --color-gray-50: #f9fafb;
+  --color-gray-100: #f3f4f6;
+  --color-gray-200: #e5e7eb;
+  --color-gray-300: #d1d5db;
+  --color-gray-400: #9ca3af;
+  --color-gray-500: #6b7280;
+  --color-gray-600: #4b5563;
+  --color-gray-700: #374151;
+  --color-gray-800: #1f2937;
+  --color-gray-900: #111827;
+  --color-gray-950: #030712;
+
+  // ── Legacy Aliases ──
+  --card-bg: var(--surface-card);
+  --card-stat-bg: var(--surface-card-stat);
+  --card-list-bg: var(--surface-card-list);
+  --card-border: var(--border-card);
+  --card-border-hover: var(--border-card-hover);
+  --card-border-stat: var(--border-card-stat);
+  --card-border-list: var(--border-card-list);
+  --card-shadow: var(--shadow-card);
+  --card-shadow-glow: var(--shadow-glow);
+  --header-bg: var(--surface-header);
+  --header-border: var(--border-header);
+  --bg-body: var(--surface-body);
+  --bg-glow-1: var(--glow-primary);
+  --bg-glow-2: var(--glow-secondary);
+  --bg-glow-3: var(--glow-success);
+}
+
+// ═══════════════════════════════════════════
+// Light Theme
+// ═══════════════════════════════════════════
+[data-theme="light"] {
+  // ── Brand (same as dark) ──
+  --color-primary: #{$purple};
+  --color-primary-soft: #{rgba($purple, 0.15)};
+  --color-primary-hover: #{rgba($purple, 0.35)};
+  --color-secondary: #{$pink};
+  --color-success: #{$teal};
+  --color-warning: #{$amber};
+  --color-danger: #{$red};
+  --color-info: #{$blue};
+
+  // ── Surface ──
+  --surface-body: #f3f4f6;
+  --surface-card: rgba(255, 255, 255, 0.4);
+  --surface-card-stat: rgba(255, 255, 255, 0.35);
+  --surface-card-list: rgba(255, 255, 255, 0.25);
+  --surface-header: rgba(255, 255, 255, 0.35);
+  --surface-tooltip: rgba(255, 255, 255, 0.95);
+
+  // ── Border ──
+  --border-card: #{rgba($purple, 0.15)};
+  --border-card-hover: #{rgba($purple, 0.35)};
+  --border-card-stat: #{rgba($purple, 0.12)};
+  --border-card-list: #{rgba($purple, 0.1)};
+  --border-header: #{rgba($purple, 0.15)};
+
+  // ── Shadow ──
+  --shadow-card: rgba(0, 0, 0, 0.08);
+  --shadow-glow: #{rgba($purple, 0.1)};
+
+  // ── Text ──
+  --text-primary: #374151;
+  --text-secondary: #4b5563;
+  --text-muted: #9ca3af;
+  --text-inverse: #f9fafb;
+
+  // ── Background Glow Layers ──
+  --glow-primary: #{rgba($purple, 0.15)};
+  --glow-secondary: #{rgba($pink, 0.08)};
+  --glow-success: #{rgba($teal, 0.06)};
+
+  // ── Glow Card (mouse-follow highlight, subdued in light) ──
+  --glow-card-border-1: #{rgba($purple, 0.15)};
+  --glow-card-border-2: #{rgba($pink, 0.08)};
+  --glow-card-bg-1: #{rgba($purple, 0.03)};
+  --glow-card-bg-2: #{rgba($pink, 0.015)};
+
+  // ── Grid ──
+  --grid-line: rgba(0, 0, 0, 0.025);
+  --grid-dot: rgba(0, 0, 0, 0.02);
+
+  // ── Chart Tooltip ──
+  --chart-tooltip-bg: rgba(255, 255, 255, 0.95);
+  --chart-tooltip-border: #{rgba($purple, 0.25)};
+
+  // ── Chart Color Sequence (same palette in both themes) ──
+  --chart-color-1: #{$chart-1};
+  --chart-color-2: #{$chart-2};
+  --chart-color-3: #{$chart-3};
+  --chart-color-4: #{$chart-4};
+  --chart-color-5: #{$chart-5};
+  --chart-color-6: #{$chart-6};
+  --chart-color-7: #{$chart-7};
+  --chart-color-8: #{$chart-8};
+
+  // ── Gray Palette (inverted for light backgrounds) ──
+  --color-gray-50: #f9fafb;
+  --color-gray-100: #f3f4f6;
+  --color-gray-200: #374151;
+  --color-gray-300: #4b5563;
+  --color-gray-400: #6b7280;
+  --color-gray-500: #6b7280;
+  --color-gray-600: #9ca3af;
+  --color-gray-700: #d1d5db;
+  --color-gray-800: #f3f4f6;
+  --color-gray-900: #f9fafb;
+  --color-gray-950: #ffffff;
+
+  // ── Legacy Aliases ──
+  --card-bg: var(--surface-card);
+  --card-stat-bg: var(--surface-card-stat);
+  --card-list-bg: var(--surface-card-list);
+  --card-border: var(--border-card);
+  --card-border-hover: var(--border-card-hover);
+  --card-border-stat: var(--border-card-stat);
+  --card-border-list: var(--border-card-list);
+  --card-shadow: var(--shadow-card);
+  --card-shadow-glow: var(--shadow-glow);
+  --header-bg: var(--surface-header);
+  --header-border: var(--border-header);
+  --bg-body: var(--surface-body);
+  --bg-glow-1: var(--glow-primary);
+  --bg-glow-2: var(--glow-secondary);
+  --bg-glow-3: var(--glow-success);
+}
+
+// ═══════════════════════════════════════════
+// Accent Stripes  (card-stat 顶部彩色线条)
+// ═══════════════════════════════════════════
+@each $name, $pair in $accents {
+  .card-stat-accent-#{$name} {
+    background:
+      linear-gradient(90deg, #{list.nth($pair, 1)}, #{list.nth($pair, 2)}) top / 100% 3px no-repeat,
+      var(--surface-card-stat);
+  }
+}
