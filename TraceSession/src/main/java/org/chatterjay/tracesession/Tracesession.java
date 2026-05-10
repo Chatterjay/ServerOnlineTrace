@@ -7,14 +7,12 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.server.ServerStartingEvent;
 import net.minecraftforge.event.server.ServerStoppingEvent;
-import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import org.slf4j.Logger;
-
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -33,14 +31,18 @@ public class Tracesession
     private long lastTickTime = 0;
     private String modVersion;
 
-    public Tracesession(IEventBus modEventBus)
+    public Tracesession()
     {
         MinecraftForge.EVENT_BUS.register(new PlayerEventListener());
         MinecraftForge.EVENT_BUS.register(this);
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, Config.SPEC);
-        modVersion = ModList.get().getModContainerById(MODID)
-                .map(c -> c.getModInfo().getVersion().toString())
-                .orElse("1.0-SNAPSHOT");
+        try {
+            modVersion = ModList.get().getModContainerById(MODID)
+                    .map(c -> c.getModInfo().getVersion().toString())
+                    .orElse("1.0-SNAPSHOT");
+        } catch (Exception e) {
+            modVersion = "1.0-SNAPSHOT";
+        }
     }
 
     public static ApiClient getApiClient()
