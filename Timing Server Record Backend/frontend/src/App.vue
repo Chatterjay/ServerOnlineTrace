@@ -53,7 +53,7 @@
   </div>
 </template>
 
-<style scoped>
+<style lang="scss" scoped>
 .title-gradient {
   background: linear-gradient(90deg, #fbbf24, #f59e0b, #fbbf24, #f59e0b);
   background-size: 200% auto;

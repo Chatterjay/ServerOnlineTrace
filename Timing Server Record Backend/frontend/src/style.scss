@@ -1,0 +1,375 @@
+// ── Color variables ──
+$neon-purple: rgba(139, 92, 246);
+$neon-pink: rgba(236, 72, 153);
+$neon-teal: rgba(52, 211, 153);
+$card-radius: 14px;
+$card-radius-sm: 12px;
+$ease-smooth: cubic-bezier(0.22, 1, 0.36, 1);
+
+@mixin blur($px) {
+  backdrop-filter: blur(#{$px});
+  -webkit-backdrop-filter: blur(#{$px});
+}
+
+/* ── 主题变量 (默认为深色) ── */
+:root {
+  --bg-body: #030712;
+  --bg-glow-1: #{rgba($neon-purple, 0.12)};
+  --bg-glow-2: #{rgba($neon-pink, 0.06)};
+  --bg-glow-3: #{rgba($neon-teal, 0.04)};
+  --grid-line: rgba(255, 255, 255, 0.015);
+  --grid-dot: rgba(255, 255, 255, 0.02);
+  --card-bg: rgba(17, 24, 39, 0.25);
+  --card-stat-bg: rgba(17, 24, 39, 0.2);
+  --card-list-bg: rgba(17, 24, 39, 0.15);
+  --card-border: #{rgba($neon-purple, 0.12)};
+  --card-border-hover: #{rgba($neon-purple, 0.35)};
+  --card-border-stat: #{rgba($neon-purple, 0.1)};
+  --card-border-list: #{rgba($neon-purple, 0.08)};
+  --card-shadow: rgba(0, 0, 0, 0.5);
+  --card-shadow-glow: #{rgba($neon-purple, 0.12)};
+  --header-bg: rgba(3, 7, 18, 0.2);
+  --header-border: #{rgba($neon-purple, 0.15)};
+  --text-muted: #6b7280;
+  --color-gray-50: #f9fafb;
+  --color-gray-100: #f3f4f6;
+  --color-gray-200: #e5e7eb;
+  --color-gray-300: #d1d5db;
+  --color-gray-400: #9ca3af;
+  --color-gray-500: #9ca3af;
+  --color-gray-600: #8892a0;
+  --color-gray-700: #6b7280;
+  --color-gray-800: #4b5563;
+  --color-gray-900: #374151;
+  --color-gray-950: #1f2937;
+}
+
+/* ── 浅色主题 ── */
+[data-theme="light"] {
+  --bg-body: #f3f4f6;
+  --bg-glow-1: #{rgba($neon-purple, 0.15)};
+  --bg-glow-2: #{rgba($neon-pink, 0.08)};
+  --bg-glow-3: #{rgba($neon-teal, 0.06)};
+  --grid-line: rgba(0, 0, 0, 0.025);
+  --grid-dot: rgba(0, 0, 0, 0.02);
+  --card-bg: rgba(255, 255, 255, 0.4);
+  --card-stat-bg: rgba(255, 255, 255, 0.35);
+  --card-list-bg: rgba(255, 255, 255, 0.25);
+  --card-border: #{rgba($neon-purple, 0.15)};
+  --card-border-hover: #{rgba($neon-purple, 0.35)};
+  --card-border-stat: #{rgba($neon-purple, 0.12)};
+  --card-border-list: #{rgba($neon-purple, 0.1)};
+  --card-shadow: rgba(0, 0, 0, 0.08);
+  --card-shadow-glow: #{rgba($neon-purple, 0.1)};
+  --header-bg: rgba(255, 255, 255, 0.35);
+  --header-border: #{rgba($neon-purple, 0.15)};
+  --text-muted: #9ca3af;
+  --color-gray-50: #f9fafb;
+  --color-gray-100: #f3f4f6;
+  --color-gray-200: #374151;
+  --color-gray-300: #4b5563;
+  --color-gray-400: #6b7280;
+  --color-gray-500: #6b7280;
+  --color-gray-600: #4b5563;
+  --color-gray-700: #374151;
+  --color-gray-800: #f3f4f6;
+  --color-gray-900: #f9fafb;
+  --color-gray-950: #ffffff;
+}
+
+/* ── 主题平滑过渡 ── */
+*,
+*::before,
+*::after {
+  transition: background-color 0.4s ease,
+              border-color 0.4s ease,
+              box-shadow 0.4s ease,
+              color 0.4s ease;
+}
+
+/* ── 背景 ── */
+body {
+  background:
+    radial-gradient(ellipse 70% 40% at 30% 10%, var(--bg-glow-1), transparent),
+    radial-gradient(ellipse 50% 35% at 70% 90%, var(--bg-glow-2), transparent),
+    radial-gradient(ellipse 40% 30% at 50% 50%, var(--bg-glow-3), transparent),
+    var(--bg-body);
+  background-attachment: fixed;
+  animation: bgDrift 40s ease-in-out infinite;
+
+  &::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(var(--grid-line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+    background-size: 56px 56px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  &::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background-image:
+      radial-gradient(circle, var(--grid-dot) 1px, transparent 1px),
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.35'/%3E%3C/svg%3E");
+    background-size: 28px 28px, 300px 300px;
+    background-blend-mode: normal, overlay;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.4;
+  }
+}
+
+#app {
+  position: relative;
+  z-index: 1;
+}
+
+// ── Card system ──
+.card {
+  background: var(--card-bg);
+  @include blur(24px);
+  border: 1px solid var(--card-border);
+  border-radius: $card-radius;
+  will-change: transform, box-shadow, border-color;
+
+  &-hover {
+    transition: transform 0.4s $ease-smooth,
+                box-shadow 0.4s $ease-smooth,
+                border-color 0.4s ease;
+
+    &:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 20px 60px var(--card-shadow),
+                  0 0 30px var(--card-shadow-glow);
+      border-color: var(--card-border-hover);
+    }
+  }
+}
+
+// ── Stat cards ──
+.card-stat {
+  position: relative;
+  background: var(--card-stat-bg);
+  @include blur(20px);
+  border: 1px solid var(--card-border-stat);
+  border-radius: $card-radius;
+  overflow: hidden;
+  transition: transform 0.4s $ease-smooth,
+              box-shadow 0.4s $ease-smooth;
+
+  &::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    border-radius: $card-radius $card-radius 0 0;
+    opacity: 0.8;
+  }
+
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 16px 40px var(--card-shadow),
+                0 0 20px var(--card-shadow-glow);
+  }
+}
+
+// Accent stripes
+@mixin accent-stripe($from, $to) {
+  .card-stat-accent-#{$from}::before {
+    background: linear-gradient(90deg, $to);
+  }
+}
+.card-stat-accent-amber::before { background: linear-gradient(90deg, #fbbf24, #f59e0b); }
+.card-stat-accent-green::before { background: linear-gradient(90deg, #34d399, #10b981); }
+.card-stat-accent-blue::before { background: linear-gradient(90deg, #60a5fa, #3b82f6); }
+.card-stat-accent-cyan::before { background: linear-gradient(90deg, #22d3ee, #06b6d4); }
+.card-stat-accent-purple::before { background: linear-gradient(90deg, #a78bfa, #8b5cf6); }
+.card-stat-accent-pink::before { background: linear-gradient(90deg, #f472b6, #ec4899); }
+.card-stat-accent-red::before { background: linear-gradient(90deg, #f87171, #ef4444); }
+
+// ── Card list ──
+.card-list {
+  background: var(--card-list-bg);
+  @include blur(12px);
+  border: 1px solid var(--card-border-list);
+  border-radius: $card-radius-sm;
+  overflow-x: auto;
+}
+
+// ── Animations ──
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 6px rgba($neon-teal, 0.4); }
+  50% { box-shadow: 0 0 18px rgba($neon-teal, 0.9), 0 0 30px rgba($neon-teal, 0.3); }
+}
+@keyframes bgDrift {
+  0% { background-position: 50% -20%, 80% 80%, 50% 50%; }
+  33% { background-position: 45% -15%, 75% 85%, 48% 48%; }
+  66% { background-position: 55% -25%, 85% 75%, 52% 52%; }
+  100% { background-position: 50% -20%, 80% 80%, 50% 50%; }
+}
+
+.animate-fade-in { animation: fadeIn 0.6s $ease-smooth both; }
+.animate-fade-in-d1 { animation: fadeIn 0.6s $ease-smooth 0.1s both; }
+.animate-fade-in-d2 { animation: fadeIn 0.6s $ease-smooth 0.2s both; }
+.animate-fade-in-d3 { animation: fadeIn 0.6s $ease-smooth 0.3s both; }
+
+.live-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: $neon-teal;
+  animation: pulse-glow 1.5s ease-in-out infinite;
+}
+
+// ── Scrollbar ──
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+
+  &-track { background: transparent; }
+  &-thumb {
+    background: #{rgba($neon-purple, 0.2)};
+    border-radius: 3px;
+
+    &:hover { background: rgba($neon-purple, 0.35); }
+  }
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba($neon-purple, 0.2) transparent;
+}
+
+// ── Tooltip ──
+.tooltip-box {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-bottom: 8px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  line-height: 1.3;
+  white-space: nowrap;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  z-index: 50;
+  pointer-events: none;
+  background: rgba(31, 41, 55, 0.95);
+  @include blur(8px);
+  border: 1px solid rgba($neon-purple, 0.25);
+  color: #e5e7eb;
+
+  &::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 5px solid transparent;
+    border-top-color: rgba(31, 41, 55, 0.95);
+  }
+}
+
+// ── Terminal ──
+.terminal {
+  &-box {
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid var(--card-border);
+    border-radius: 10px;
+    overflow: hidden;
+    font-family: "Courier New", "Fira Code", monospace;
+  }
+  &-output {
+    padding: 12px 14px;
+    max-height: 240px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+  &-line {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    line-height: 1.6;
+  }
+  &-prompt {
+    color: $neon-teal;
+    font-weight: bold;
+    flex-shrink: 0;
+  }
+  &-cmd { color: #e5e7eb; }
+  &-time {
+    color: #6b7280;
+    font-size: 11px;
+    margin-left: auto;
+    flex-shrink: 0;
+  }
+  &-input-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    border-top: 1px solid var(--card-border);
+    background: rgba(0, 0, 0, 0.15);
+  }
+  &-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: #e5e7eb;
+    font-family: inherit;
+    font-size: 13px;
+
+    &::placeholder { color: #6b7280; }
+  }
+  &-btn {
+    background: rgba($neon-purple, 0.15);
+    color: #a78bfa;
+    border: 1px solid rgba($neon-purple, 0.25);
+    border-radius: 6px;
+    padding: 3px 12px;
+    font-size: 12px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.25s ease;
+
+    &:hover:not(:disabled) {
+      background: rgba($neon-purple, 0.25);
+      box-shadow: 0 0 12px rgba($neon-purple, 0.15);
+    }
+    &:disabled {
+      opacity: 0.3;
+      cursor: default;
+    }
+  }
+}
+
+// ── Light theme terminal overrides ──
+[data-theme="light"] {
+  .terminal-box {
+    background: rgba(255, 255, 255, 0.5);
+  }
+  .terminal-cmd { color: #374151; }
+  .terminal-input {
+    color: #374151;
+    &::placeholder { color: #9ca3af; }
+  }
+  .terminal-input-row { background: rgba(0, 0, 0, 0.03); }
+  .terminal-time { color: #9ca3af; }
+}
