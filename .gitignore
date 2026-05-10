@@ -62,6 +62,10 @@ shutdown.bat
 shutdown.ps1
 shutdown.sh
 
+# Dev scripts
+dev.bat
+dev.sh
+
 # SSH
 .ssh/
 **/.ssh/

@@ -51,10 +51,10 @@ function onMouseLeave() {
 }
 
 const glowBgStyle = computed(() => ({
-  background: `radial-gradient(600px circle at ${mouseX.value}px ${mouseY.value}px, rgba(139, 92, 246, 0.08), rgba(236, 72, 153, 0.04), transparent 60%)`,
+  background: `radial-gradient(350px circle at ${mouseX.value}px ${mouseY.value}px, rgba(139, 92, 246, 0.05), rgba(236, 72, 153, 0.025), transparent 60%)`,
 }));
 
 const glowBorderStyle = computed(() => ({
-  background: `radial-gradient(400px circle at ${mouseX.value}px ${mouseY.value}px, rgba(139, 92, 246, 0.25), rgba(236, 72, 153, 0.12), transparent 60%)`,
+  background: `radial-gradient(200px circle at ${mouseX.value}px ${mouseY.value}px, rgba(139, 92, 246, 0.15), rgba(236, 72, 153, 0.08), transparent 60%)`,
 }));
 </script>
