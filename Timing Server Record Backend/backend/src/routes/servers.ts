@@ -42,7 +42,7 @@ async function closeServerSessions(serverId: string) {
 
 // Mod heartbeat
 router.post("/heartbeat", async (req: Request, res: Response) => {
-  const { serverId, serverName, address, status, tps, mtps, gameMode, modLoader } = req.body;
+  const { serverId, serverName, address, status, tps, mtps, gameMode, modLoader, modVersion, gameVersion } = req.body;
   try {
     const server = await prisma.server.upsert({
       where: { id: serverId },
@@ -52,6 +52,8 @@ router.post("/heartbeat", async (req: Request, res: Response) => {
         ...(mtps != null ? { mtps } : {}),
         ...(gameMode != null ? { gameMode } : {}),
         ...(modLoader != null ? { modLoader } : {}),
+        ...(modVersion != null ? { modVersion } : {}),
+        ...(gameVersion != null ? { gameVersion } : {}),
       },
       create: {
         id: serverId, name: serverName || "Unknown", address: address || "",
@@ -60,6 +62,8 @@ router.post("/heartbeat", async (req: Request, res: Response) => {
         ...(mtps != null ? { mtps } : {}),
         ...(gameMode != null ? { gameMode } : {}),
         ...(modLoader != null ? { modLoader } : {}),
+        ...(modVersion != null ? { modVersion } : {}),
+        ...(gameVersion != null ? { gameVersion } : {}),
       },
     });
 

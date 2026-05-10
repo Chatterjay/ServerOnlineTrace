@@ -30,12 +30,14 @@ public class Tracesession
     private double currentTps = 20.0;
     private double currentMtps = 0.0;
     private long lastTickTime = 0;
+    private String modVersion;
 
     public Tracesession(IEventBus modEventBus, ModContainer modContainer)
     {
         NeoForge.EVENT_BUS.register(new PlayerEventListener());
         NeoForge.EVENT_BUS.register(this);
         modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
+        modVersion = modContainer.getModInfo().getVersion().toString();
     }
 
     public static ApiClient getApiClient()
@@ -66,9 +68,10 @@ public class Tracesession
                 () -> {
                     try {
                         String gameMode = minecraftServer.getDefaultGameType().getName();
+                        String gameVersion = minecraftServer.getServerVersion();
                         JsonObject response = getApiClient().sendHeartbeatSync(
                                 Config.serverId, Config.serverName, serverAddress,
-                                currentTps, currentMtps, gameMode, Config.modLoader
+                                currentTps, currentMtps, gameMode, Config.modLoader, modVersion, gameVersion
                         );
                         if (response != null && response.has("commands") && !response.get("commands").isJsonNull())
                         {

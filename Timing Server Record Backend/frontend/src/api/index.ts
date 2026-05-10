@@ -13,6 +13,8 @@ export interface Server {
   playerCount?: number;
   gameMode?: string;
   modLoader?: string;
+  modVersion?: string;
+  gameVersion?: string;
   _count?: { sessions: number; events: number };
 }
 

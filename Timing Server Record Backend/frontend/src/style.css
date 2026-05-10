@@ -7,15 +7,15 @@
   --bg-glow-2: rgba(251, 191, 36, 0.08);
   --grid-line: rgba(255, 255, 255, 0.02);
   --grid-dot: rgba(255, 255, 255, 0.025);
-  --card-bg: rgba(17, 24, 39, 0.6);
-  --card-stat-bg: linear-gradient(135deg, rgba(17, 24, 39, 0.7), rgba(31, 41, 55, 0.4));
-  --card-list-bg: rgba(17, 24, 39, 0.4);
-  --card-border: rgba(75, 85, 99, 0.3);
-  --card-border-stat: rgba(75, 85, 99, 0.25);
-  --card-border-list: rgba(75, 85, 99, 0.2);
+  --card-bg: rgba(17, 24, 39, 0.45);
+  --card-stat-bg: linear-gradient(135deg, rgba(17, 24, 39, 0.55), rgba(31, 41, 55, 0.25));
+  --card-list-bg: rgba(17, 24, 39, 0.3);
+  --card-border: rgba(75, 85, 99, 0.25);
+  --card-border-stat: rgba(75, 85, 99, 0.2);
+  --card-border-list: rgba(75, 85, 99, 0.15);
   --card-shadow: rgba(0, 0, 0, 0.4);
-  --header-bg: rgba(3, 7, 18, 0.4);
-  --header-border: rgba(75, 85, 99, 0.5);
+  --header-bg: rgba(3, 7, 18, 0.3);
+  --header-border: rgba(75, 85, 99, 0.4);
   --text-muted: #6b7280;
 
   /* 深色背景用浅色字 */
@@ -39,15 +39,15 @@
   --bg-glow-2: rgba(251, 191, 36, 0.12);
   --grid-line: rgba(0, 0, 0, 0.03);
   --grid-dot: rgba(0, 0, 0, 0.025);
-  --card-bg: rgba(255, 255, 255, 0.7);
-  --card-stat-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.8), rgba(243, 244, 246, 0.5));
-  --card-list-bg: rgba(255, 255, 255, 0.5);
-  --card-border: rgba(156, 163, 175, 0.3);
-  --card-border-stat: rgba(156, 163, 175, 0.25);
-  --card-border-list: rgba(156, 163, 175, 0.2);
-  --card-shadow: rgba(0, 0, 0, 0.1);
-  --header-bg: rgba(255, 255, 255, 0.6);
-  --header-border: rgba(156, 163, 175, 0.3);
+  --card-bg: rgba(255, 255, 255, 0.55);
+  --card-stat-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.65), rgba(243, 244, 246, 0.35));
+  --card-list-bg: rgba(255, 255, 255, 0.35);
+  --card-border: rgba(156, 163, 175, 0.25);
+  --card-border-stat: rgba(156, 163, 175, 0.2);
+  --card-border-list: rgba(156, 163, 175, 0.15);
+  --card-shadow: rgba(0, 0, 0, 0.08);
+  --header-bg: rgba(255, 255, 255, 0.45);
+  --header-border: rgba(156, 163, 175, 0.25);
   --text-muted: #9ca3af;
 
   /* 覆盖 Tailwind 灰色调色板 — 浅色背景用深色字 */
@@ -70,7 +70,8 @@
 *::after {
   transition: background-color 0.35s ease,
               border-color 0.35s ease,
-              box-shadow 0.35s ease;
+              box-shadow 0.35s ease,
+              color 0.35s ease;
 }
 
 /* ── 背景纹理 ── */
@@ -120,13 +121,20 @@ body::after {
 /* ── 卡片 ── */
 .card {
   background: var(--card-bg);
-  backdrop-filter: blur(12px);
+  backdrop-filter: blur(16px);
   border: 1px solid var(--card-border);
   border-radius: 12px;
+  will-change: transform, box-shadow;
+}
+.card-hover {
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+              box-shadow 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+              border-color 0.35s ease;
 }
 .card-hover:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 12px 40px var(--card-shadow);
+  transform: translateY(-3px);
+  box-shadow: 0 16px 48px var(--card-shadow);
+  border-color: rgba(251, 191, 36, 0.15);
 }
 
 .card-stat {
@@ -134,6 +142,12 @@ body::after {
   backdrop-filter: blur(12px);
   border: 1px solid var(--card-border-stat);
   border-radius: 12px;
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+              box-shadow 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.card-stat:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 32px var(--card-shadow);
 }
 
 .card-list {
@@ -145,11 +159,11 @@ body::after {
 }
 
 /* ── 动画 ── */
-@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-.animate-fade-in { animation: fadeIn 0.5s ease-out both; }
-.animate-fade-in-d1 { animation: fadeIn 0.5s ease-out 0.1s both; }
-.animate-fade-in-d2 { animation: fadeIn 0.5s ease-out 0.2s both; }
-.animate-fade-in-d3 { animation: fadeIn 0.5s ease-out 0.3s both; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+.animate-fade-in { animation: fadeIn 0.55s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.animate-fade-in-d1 { animation: fadeIn 0.55s cubic-bezier(0.22, 1, 0.36, 1) 0.1s both; }
+.animate-fade-in-d2 { animation: fadeIn 0.55s cubic-bezier(0.22, 1, 0.36, 1) 0.2s both; }
+.animate-fade-in-d3 { animation: fadeIn 0.55s cubic-bezier(0.22, 1, 0.36, 1) 0.3s both; }
 
 @keyframes pulse-glow {
   0%, 100% { box-shadow: 0 0 4px rgba(52, 211, 153, 0.4); }

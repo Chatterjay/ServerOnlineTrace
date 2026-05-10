@@ -82,6 +82,8 @@
               <div class="text-xs text-gray-600 mt-0.5">
                 {{ srv.address || "未知地址" }}
                 <span v-if="srv.lastHeartbeat" class="ml-2">最后心跳 {{ timeAgo(srv.lastHeartbeat) }}</span>
+                <span v-if="srv.gameVersion" class="ml-2 font-mono text-gray-500">MC {{ srv.gameVersion }}</span>
+                <span v-if="srv.modVersion" class="ml-2 font-mono">v{{ srv.modVersion }}</span>
               </div>
             </div>
             <div class="text-xs text-right shrink-0 leading-relaxed min-w-[80px]">

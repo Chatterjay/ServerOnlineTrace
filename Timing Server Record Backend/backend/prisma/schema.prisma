@@ -18,6 +18,8 @@ model Server {
   mtps           Float?
   gameMode       String?
   modLoader      String?
+  modVersion     String?
+  gameVersion    String?
   firstSeen      DateTime  @default(now())
   sessions       Session[]
   events         Event[]

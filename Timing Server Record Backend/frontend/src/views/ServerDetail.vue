@@ -14,7 +14,13 @@
             {{ server.address || "未知地址" }}
             <span v-if="server.lastHeartbeat" class="ml-3">最后心跳 {{ timeAgo(server.lastHeartbeat) }}</span>
           </p>
-          <p v-if="server.gameMode || server.modLoader" class="text-xs text-gray-600 mt-2 flex items-center gap-3">
+          <p v-if="server.gameMode || server.modLoader || server.modVersion || server.gameVersion" class="text-xs text-gray-600 mt-2 flex items-center gap-3 flex-wrap">
+            <span v-if="server.gameVersion" class="inline-flex items-center gap-1">
+              <svg class="w-3.5 h-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+                <rect x="1.5" y="2.5" width="13" height="11" rx="1.5" /><path d="M4 2v12M12 2v12M1.5 6h13M1.5 10h13" />
+              </svg>
+              MC {{ server.gameVersion }}
+            </span>
             <span v-if="server.gameMode" class="inline-flex items-center gap-1">
               <svg class="w-3.5 h-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
                 <rect x="2" y="2" width="12" height="12" rx="2" /><circle cx="8" cy="8" r="2" />
@@ -26,6 +32,12 @@
                 <path d="M4 2h8a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1zM4 6h8M4 9h5" />
               </svg>
               {{ server.modLoader }}
+            </span>
+            <span v-if="server.modVersion" class="inline-flex items-center gap-1">
+              <svg class="w-3.5 h-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+                <circle cx="8" cy="8" r="5" /><path d="M8 5v3l2 1" stroke-linecap="round" />
+              </svg>
+              v{{ server.modVersion }}
             </span>
           </p>
         </div>

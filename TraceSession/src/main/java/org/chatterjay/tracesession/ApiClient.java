@@ -70,9 +70,9 @@ public class ApiClient
                 });
     }
 
-    public void sendHeartbeat(String serverId, String serverName, String address, double tps, double mtps, String gameMode, String modLoader)
+    public void sendHeartbeat(String serverId, String serverName, String address, double tps, double mtps, String gameMode, String modLoader, String modVersion, String gameVersion)
     {
-        var json = buildHeartbeatJson(serverId, serverName, address, tps, mtps, gameMode, modLoader);
+        var json = buildHeartbeatJson(serverId, serverName, address, tps, mtps, gameMode, modLoader, modVersion, gameVersion);
 
         var request = HttpRequest.newBuilder()
                 .uri(URI.create(baseUrl + "/api/servers/heartbeat"))
@@ -87,10 +87,10 @@ public class ApiClient
                 });
     }
 
-    public JsonObject sendHeartbeatSync(String serverId, String serverName, String address, double tps, double mtps, String gameMode, String modLoader)
+    public JsonObject sendHeartbeatSync(String serverId, String serverName, String address, double tps, double mtps, String gameMode, String modLoader, String modVersion, String gameVersion)
     {
         try {
-            var json = buildHeartbeatJson(serverId, serverName, address, tps, mtps, gameMode, modLoader);
+            var json = buildHeartbeatJson(serverId, serverName, address, tps, mtps, gameMode, modLoader, modVersion, gameVersion);
             var request = HttpRequest.newBuilder()
                     .uri(URI.create(baseUrl + "/api/servers/heartbeat"))
                     .header("Content-Type", "application/json")
@@ -104,7 +104,7 @@ public class ApiClient
         }
     }
 
-    private JsonObject buildHeartbeatJson(String serverId, String serverName, String address, double tps, double mtps, String gameMode, String modLoader)
+    private JsonObject buildHeartbeatJson(String serverId, String serverName, String address, double tps, double mtps, String gameMode, String modLoader, String modVersion, String gameVersion)
     {
         var json = new JsonObject();
         json.addProperty("serverId", serverId);
@@ -114,6 +114,8 @@ public class ApiClient
         json.addProperty("mtps", mtps);
         json.addProperty("gameMode", gameMode);
         json.addProperty("modLoader", modLoader);
+        json.addProperty("modVersion", modVersion);
+        json.addProperty("gameVersion", gameVersion);
         return json;
     }
 
