@@ -12,11 +12,12 @@ set "ZIP_FILE=%TOOLS%\ServerOnlineTrace.zip"
 set "EXTRACT_DIR=%TOOLS%\extract"
 
 echo ========================================
-echo TraceSession one-click web installer
+echo TraceSession one-click web setup/start
 echo ========================================
 echo.
 echo Put this BAT beside the TraceSession mod JAR.
 echo The BAT installs and starts the web panel.
+echo After first setup, run this same BAT again for fast startup.
 echo Put the JAR into your Minecraft server mods folder.
 echo.
 
@@ -41,16 +42,45 @@ if not exist "%FRONTEND%\package.json" (
     goto :fail
 )
 
+if exist "%FRONTEND%\dist\index.html" if exist "%FRONTEND%\node_modules" if exist "%BACKEND%\node_modules" (
+    echo Existing setup looks ready. Fast starting web panel...
+    goto :start_app
+)
+
+echo Setup is incomplete or missing. Preparing web panel...
+echo.
+
+if exist "%FRONTEND%\node_modules" (
+    echo [1/4] Frontend dependencies already installed.
+    echo.
+    goto :build_frontend
+)
+
 echo [1/4] Installing frontend dependencies...
 cd /d "%FRONTEND%" || goto :fail
 call npm install
 if errorlevel 1 goto :fail
 echo.
 
+:build_frontend
+if exist "%FRONTEND%\dist\index.html" (
+    echo [2/4] Frontend build already exists.
+    echo.
+    goto :install_backend
+)
+
 echo [2/4] Building frontend...
+cd /d "%FRONTEND%" || goto :fail
 call npm run build
 if errorlevel 1 goto :fail
 echo.
+
+:install_backend
+if exist "%BACKEND%\node_modules" (
+    echo [3/4] Backend dependencies already installed.
+    echo.
+    goto :start_app
+)
 
 echo [3/4] Installing backend dependencies...
 cd /d "%BACKEND%" || goto :fail
@@ -58,11 +88,13 @@ call npm install
 if errorlevel 1 goto :fail
 echo.
 
+:start_app
 echo [4/4] Initializing database and starting web panel...
 echo.
 echo Web panel: http://localhost:27890
 echo Mod config: backendUrl = "http://localhost:27890"
 echo.
+cd /d "%BACKEND%" || goto :fail
 call node startup.mjs
 goto :end
 

@@ -31,6 +31,10 @@ English version: [README.en.md](README.en.md)
 
 这个方式需要联网，因为脚本会下载 Node.js 和 TraceSession Web 程序。
 
+第一次部署完成后，后续仍然双击同一个 `TraceSession-OneClick.bat` 启动即可。脚本会检测已经部署好的文件，能直接启动就直接启动，不会每次都重新下载和重装。
+
+如果想强制重新部署，删除同目录下的 `TraceSession-Web` 文件夹后再运行 `TraceSession-OneClick.bat`。
+
 ## 仓库完整部署
 
 如果你已经下载了整个项目，Windows 下推荐直接双击：
