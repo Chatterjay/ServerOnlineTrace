@@ -15,6 +15,8 @@ Download these two files:
 
 The first run downloads and prepares the Web panel. Later runs use the same BAT for fast startup.
 
+If port `27890` is already used by an older TraceSession process, the BAT stops that old process and starts a fresh one. If another program owns the port, the BAT prints the PID and stops.
+
 If the Minecraft server and Web panel are on different machines, edit:
 
 ```text
