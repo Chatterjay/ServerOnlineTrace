@@ -165,3 +165,18 @@ config/tracesession-common.toml
 ```
 
 如果 Web 面板不在 Minecraft 服务端同一台机器上，不能使用 `localhost`，要改成 Web 面板机器的 IP。
+
+### `listen EADDRINUSE: address already in use :::27890`
+
+这表示 `27890` 端口已经被占用。最常见原因是 TraceSession 后端已经启动过一次，窗口还没有关闭。
+
+新版 `start.bat` 和 `TraceSession-OneClick.bat` 会先检测端口：
+
+- 如果 `27890` 上已经是 TraceSession，会先关闭旧实例，再启动新的实例
+- 如果是其他程序占用，会提示占用进程 PID
+
+手动排查可以在 PowerShell 里运行：
+
+```powershell
+Get-NetTCPConnection -LocalPort 27890 -State Listen
+```

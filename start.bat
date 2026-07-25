@@ -43,6 +43,9 @@ echo [5/5] Initializing database and starting website...
 echo URL: http://localhost:27890
 echo Minecraft mod config: backendUrl = "http://localhost:27890"
 echo.
+call :check_port
+if errorlevel 1 goto :fail
+cd /d "%BACKEND%" || goto :fail
 call node startup.mjs
 goto :end
 
@@ -81,6 +84,31 @@ powershell -NoProfile -ExecutionPolicy Bypass -Command ^
 
 if errorlevel 1 exit /b 1
 set "PATH=%NODE_HOME%;%PATH%"
+exit /b 0
+
+:check_port
+powershell -NoProfile -ExecutionPolicy Bypass -Command ^
+  "$listener=Get-NetTCPConnection -LocalPort 27890 -State Listen -ErrorAction SilentlyContinue | Select-Object -First 1;" ^
+  "if (-not $listener) { exit 0 }" ^
+  "try {" ^
+  "  $r=Invoke-WebRequest -UseBasicParsing -Uri 'http://localhost:27890/api/health' -TimeoutSec 2;" ^
+  "  if ($r.StatusCode -ge 200 -and $r.StatusCode -lt 500) {" ^
+  "    Write-Host ('Stopping existing TraceSession process PID ' + $listener.OwningProcess);" ^
+  "    Stop-Process -Id $listener.OwningProcess -Force;" ^
+  "    Start-Sleep -Seconds 2;" ^
+  "    exit 0;" ^
+  "  }" ^
+  "} catch {}" ^
+  "Write-Host ('Port 27890 is already used by PID ' + $listener.OwningProcess);" ^
+  "exit 11"
+
+set "PORT_STATUS=%ERRORLEVEL%"
+if "%PORT_STATUS%"=="11" (
+    echo.
+    echo Port 27890 is already in use by another process.
+    echo Close that program or change HTTP_PORT before starting TraceSession.
+    exit /b 1
+)
 exit /b 0
 
 :fail
