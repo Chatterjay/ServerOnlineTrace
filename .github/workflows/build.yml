@@ -2,10 +2,10 @@ name: Build
 
 on:
   push:
-    branches: ["*"]
+    branches: ["master", "main"]
     tags: ["v*"]
   pull_request:
-    branches: ["main"]
+    branches: ["master", "main"]
 
 jobs:
   build:
@@ -68,5 +68,7 @@ jobs:
           name: TraceSession ${{ github.ref_name }}
           body: |
             See [CHANGELOG](CHANGELOG.md) for details.
-          files: TraceSession/build/libs/tracesession-*.jar
+          files: |
+            TraceSession/build/libs/tracesession-*.jar
+            TraceSession-OneClick.bat
           generate_release_notes: true
