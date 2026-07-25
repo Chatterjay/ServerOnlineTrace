@@ -8,21 +8,21 @@ datasource db {
 }
 
 model Server {
-  id             String    @id @default(uuid())
-  name           String
-  address        String
-  status         String    @default("offline")
-  note           String    @default("")
-  lastHeartbeat  DateTime?
-  tps            Float?
-  mtps           Float?
-  gameMode       String?
-  modLoader      String?
-  modVersion     String?
-  gameVersion    String?
-  firstSeen      DateTime  @default(now())
-  sessions       Session[]
-  events         Event[]
+  id            String    @id @default(uuid())
+  name          String
+  address       String
+  status        String    @default("offline")
+  note          String    @default("")
+  lastHeartbeat DateTime?
+  tps           Float?
+  mtps          Float?
+  gameMode      String?
+  modLoader     String?
+  modVersion    String?
+  gameVersion   String?
+  firstSeen     DateTime  @default(now())
+  sessions      Session[]
+  events        Event[]
 }
 
 model Player {
@@ -35,14 +35,14 @@ model Player {
 }
 
 model Session {
-  id              String   @id @default(uuid())
+  id              String    @id @default(uuid())
   playerUuid      String
   serverId        String
   joinTime        DateTime
   leaveTime       DateTime?
   durationSeconds Int?
-  player          Player   @relation(fields: [playerUuid], references: [uuid])
-  server          Server   @relation(fields: [serverId], references: [id])
+  player          Player    @relation(fields: [playerUuid], references: [uuid])
+  server          Server    @relation(fields: [serverId], references: [id])
 
   @@index([playerUuid])
   @@index([serverId])
@@ -50,13 +50,13 @@ model Session {
 }
 
 model Event {
-  id        String   @id @default(uuid())
+  id         String   @id @default(uuid())
   playerUuid String
-  serverId  String
-  type      String
-  timestamp DateTime @default(now())
-  player    Player   @relation(fields: [playerUuid], references: [uuid])
-  server    Server   @relation(fields: [serverId], references: [id])
+  serverId   String
+  type       String
+  timestamp  DateTime @default(now())
+  player     Player   @relation(fields: [playerUuid], references: [uuid])
+  server     Server   @relation(fields: [serverId], references: [id])
 
   @@index([playerUuid])
   @@index([serverId])
