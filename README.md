@@ -265,8 +265,6 @@ Timing Server Record Backend\backend\.env.example
 Minecraft 服务端 Mod 配置：
 <Minecraft 服务端目录>\config\tracesession-common.toml
 
-你的测试服示例：
-D:\Temp\EmiLink\1.21.1\server_test\config\tracesession-common.toml
 ```
 
 如果 `.env` 不存在，先复制 `.env.example` 为 `.env` 再修改。只要后端设置了 `TRACESESSION_API_KEY`，Minecraft 服务端的 `tracesession-common.toml` 里也必须设置相同的 `apiKey`。
