@@ -1,12 +1,19 @@
 import { Router, Request, Response } from "express";
 import prisma from "../prisma.js";
+import { dispatchOutbound } from "../outbound.js";
+import { sanitizeText } from "../security.js";
 
 const router = Router();
 
 // Mod reports player event (join/leave)
 router.post("/", async (req: Request, res: Response) => {
   const { serverId, playerUuid, playerName, type } = req.body;
-  if (!serverId || !playerUuid || !type) {
+  const cleanServerId = sanitizeText(serverId, 120);
+  const cleanPlayerUuid = sanitizeText(playerUuid, 80);
+  const cleanPlayerName = sanitizeText(playerName, 40) || "Unknown";
+  const cleanType = sanitizeText(type, 40);
+  const allowedTypes = new Set(["join", "leave", "death", "debug-playtime", "debug-seed"]);
+  if (!cleanServerId || !cleanPlayerUuid || !allowedTypes.has(cleanType)) {
     res.status(400).json({ error: "Missing fields: serverId, playerUuid, type" });
     return;
   }
@@ -14,27 +21,39 @@ router.post("/", async (req: Request, res: Response) => {
   try {
     // Upsert player
     await prisma.player.upsert({
-      where: { uuid: playerUuid },
-      update: { name: playerName, lastSeen: new Date() },
-      create: { uuid: playerUuid, name: playerName || "Unknown" },
+      where: { uuid: cleanPlayerUuid },
+      update: { name: cleanPlayerName, lastSeen: new Date() },
+      create: { uuid: cleanPlayerUuid, name: cleanPlayerName },
     });
 
     // Create event
     const event = await prisma.event.create({
-      data: { playerUuid, serverId, type },
+      data: { playerUuid: cleanPlayerUuid, serverId: cleanServerId, type: cleanType },
+    });
+    dispatchOutbound("event.created", {
+      ...event,
+      playerName: cleanPlayerName,
     });
 
     // If join, start a session; if leave, close the latest open session
-    if (type === "join") {
-      await prisma.session.create({
-        data: { playerUuid, serverId, joinTime: new Date() },
-      });
-    } else if (type === "leave") {
+    if (cleanType === "join") {
       const openSession = await prisma.session.findFirst({
-        where: { playerUuid, serverId, leaveTime: null },
-        orderBy: { joinTime: "desc" },
+        where: { playerUuid: cleanPlayerUuid, serverId: cleanServerId, leaveTime: null },
+        select: { id: true },
       });
       if (openSession) {
+        res.json({ ok: true, event });
+        return;
+      }
+      await prisma.session.create({
+        data: { playerUuid: cleanPlayerUuid, serverId: cleanServerId, joinTime: new Date() },
+      });
+    } else if (cleanType === "leave") {
+      const openSessions = await prisma.session.findMany({
+        where: { playerUuid: cleanPlayerUuid, serverId: cleanServerId, leaveTime: null },
+        orderBy: { joinTime: "desc" },
+      });
+      for (const openSession of openSessions) {
         const now = new Date();
         const duration = Math.floor((now.getTime() - openSession.joinTime.getTime()) / 1000);
         await prisma.session.update({
@@ -74,6 +93,23 @@ router.get("/", async (req: Request, res: Response) => {
   ]);
 
   res.json({ events, total, page, totalPages: Math.ceil(total / limit) });
+});
+
+router.delete("/", async (req: Request, res: Response) => {
+  const serverId = req.query.serverId as string;
+  const playerUuid = req.query.playerUuid as string;
+
+  const where: any = {};
+  if (serverId) where.serverId = serverId;
+  if (playerUuid) where.playerUuid = playerUuid;
+
+  if (!serverId && !playerUuid) {
+    res.status(400).json({ error: "serverId or playerUuid is required" });
+    return;
+  }
+
+  const deleted = await prisma.event.deleteMany({ where });
+  res.json({ ok: true, removed: deleted.count });
 });
 
 export default router;

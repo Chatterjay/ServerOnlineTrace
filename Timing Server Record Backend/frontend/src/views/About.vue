@@ -1,215 +1,85 @@
 <template>
-  <div class="space-y-6 animate-fade-in">
-    <router-link to="/"
-      class="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg transition-all text-gray-500 hover:text-gray-300"
-      :style="{ background: 'var(--card-bg)', border: '1px solid var(--card-border)' }">
-      <svg class="w-3.5 h-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10 12L6 8l4-4"/></svg>
-      返回
-    </router-link>
+  <el-space direction="vertical" fill size="large" class="page-stack">
+    <el-page-header title="返回总览" content="关于 TraceSession" @back="router.push('/')" />
 
-    <GlowCard cardClass="card card-deco-bar card-deco-corner p-4 sm:p-6" hoverClass="">
-      <h2 class="text-xl font-bold text-gray-200 mb-2">关于 TraceSession</h2>
-      <p class="text-sm text-gray-400 leading-relaxed">
-        TraceSession 是一个 Minecraft 服务器在线时长追踪系统，包含一个 NeoForge 模组用于采集数据，
-        和一个 Web 面板用于展示分析结果。支持多服务器管理、玩家活跃度分析、实时事件监控等功能。
-      </p>
-    </GlowCard>
+    <el-card shadow="never">
+      <template #header>系统说明</template>
+      <el-text>
+        TraceSession 是 Minecraft 服务器在线时长追踪系统，由 NeoForge 模组负责采集心跳、玩家快照、事件和聊天，由 Web 面板负责数据清洗、画像分析、图表展示和网页终端。
+      </el-text>
+    </el-card>
 
-    <GlowCard cardClass="card card-deco-side card-deco-ring p-4 sm:p-6" hoverClass="">
-      <h3 class="text-base font-semibold mb-3 text-cyan-400 flex items-center gap-2">
-        <svg class="w-4 h-4" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="3"/><path d="M8 1v3M8 12v3M1 8h3M12 8h3"/></svg>
-        服务器与网站连接机制
-      </h3>
-      <div class="space-y-3 text-sm text-gray-400 leading-relaxed">
-        <p>
-          <span class="text-cyan-400 font-medium">① 模组安装</span> — 将 TraceSession 模组放入 Minecraft 服务器
-          <code class="text-gray-300">mods/</code> 目录，启动后模组自动读取配置文件中的后端地址和服务器标识。
-        </p>
-        <p>
-          <span class="text-cyan-400 font-medium">② 心跳检测</span> — 模组每 30 秒向后端发送一次心跳请求，携带服务器名称、地址、TPS、MSPT、游戏模式（生存/创造等）、模组加载器信息。后端收到心跳后更新服务器状态，若超过 90 秒未收到心跳则判定服务器离线。
-        </p>
-        <p>
-          <span class="text-cyan-400 font-medium">③ 事件上报</span> — 玩家加入、离开或死亡时，模组通过异步 HTTP 请求立即通知后端，后端记录事件并维护对应的 Session（会话开始/结束）。
-        </p>
-        <p>
-          <span class="text-cyan-400 font-medium">④ 指令队列</span> — 在网页端控制台输入指令后，指令暂存在后端内存队列中。模组下一次心跳时拉取待处理指令，在游戏内以玩家权限执行。
-        </p>
-        <p>
-          <span class="text-cyan-400 font-medium">⑤ 聊天同步</span> — 模组监听玩家聊天事件（<code class="text-gray-300">ServerChatEvent</code>），将玩家名和消息内容异步上报后端。网页端每 5 秒轮询获取最新聊天记录，与指令历史合并按时间排序展示。
-        </p>
-        <p>
-          <span class="text-cyan-400 font-medium">⑥ 前端轮询</span> — 网页仪表盘每 5 秒刷新服务器列表和实时事件，服务器详情页同步刷新状态、指令历史和聊天记录。所有 API 通信均通过 HTTPS 加密。
-        </p>
-      </div>
-    </GlowCard>
+    <el-row :gutter="16">
+      <el-col :xs="24" :lg="12">
+        <el-card shadow="never">
+          <template #header>连接机制</template>
+          <el-steps direction="vertical" :active="6" finish-status="success">
+            <el-step title="模组安装" description="将 TraceSession jar 放入 mods 目录，启动后读取后端地址和 serverId。" />
+            <el-step title="心跳检测" description="模组定时上报平均 TPS、平均 MSPT、版本、模式和在线玩家快照。" />
+            <el-step title="事件上报" description="玩家加入、离开、死亡会异步写入后端，后端维护会话。" />
+            <el-step title="数据清洗" description="后端交叉心跳快照、session 和事件，补齐缺失 join/leave 并计算画像。" />
+            <el-step title="网页终端" description="网页端文字广播到游戏，/ 开头以普通用户权限执行。" />
+            <el-step title="图表展示" description="前端展示总览、服务器画像、玩家画像、趋势、时段和维度分布。" />
+          </el-steps>
+        </el-card>
+      </el-col>
+      <el-col :xs="24" :lg="12">
+        <el-card shadow="never">
+          <template #header>数据库</template>
+          <el-descriptions v-if="dbInfo" :column="1" border>
+            <el-descriptions-item label="当前类型">
+              <el-tag :type="dbInfo.type === 'SQLite' ? 'success' : 'primary'">{{ dbInfo.type }}</el-tag>
+            </el-descriptions-item>
+            <el-descriptions-item label="文件">{{ dbInfo.file || "外部数据库" }}</el-descriptions-item>
+          </el-descriptions>
+          <el-skeleton v-else :rows="4" animated />
 
-    <GlowCard cardClass="card card-deco-dash card-deco-corner p-4 sm:p-6" hoverClass="">
-      <h3 class="text-base font-semibold mb-3 flex items-center gap-2"
-        :class="dbInfo ? (dbInfo.type === 'SQLite' ? 'text-green-400' : 'text-blue-400') : 'text-gray-400'">
-        <svg class="w-4 h-4" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
-          <ellipse cx="8" cy="4" rx="6" ry="2.5"/>
-          <path d="M2 4v8c0 1.4 2.7 2.5 6 2.5s6-1.1 6-2.5V4"/>
-          <path d="M2 8c0 1.4 2.7 2.5 6 2.5S14 9.4 14 8"/>
-        </svg>
-        数据库
-      </h3>
+          <el-divider />
+          <el-tabs>
+            <el-tab-pane label="SQLite">
+              <el-text>默认使用 SQLite，无需额外配置，适合本机测试和小型服务器。</el-text>
+              <el-input class="mt-3" type="textarea" :rows="2" readonly model-value="DATABASE_URL=file:./data/tracesession.db" />
+            </el-tab-pane>
+            <el-tab-pane label="PostgreSQL">
+              <el-text>生产环境可切换 PostgreSQL，适合多服务器和长期数据。</el-text>
+              <el-input class="mt-3" type="textarea" :rows="3" readonly model-value="DATABASE_PROVIDER=postgresql&#10;DATABASE_URL=postgresql://postgres:你的密码@localhost:5432/tracesession" />
+            </el-tab-pane>
+          </el-tabs>
+        </el-card>
+      </el-col>
+    </el-row>
 
-      <div v-if="dbInfo" class="space-y-3 text-sm">
-        <div class="flex items-center gap-2">
-          <span class="text-gray-500">当前类型：</span>
-          <span class="px-2 py-0.5 rounded text-xs font-mono"
-            :class="dbInfo.type === 'SQLite'
-              ? 'bg-green-900/30 text-green-400'
-              : 'bg-blue-900/30 text-blue-400'">
-            {{ dbInfo.type }}
-          </span>
-          <span v-if="dbInfo.file" class="text-gray-500 text-xs font-mono">({{ dbInfo.file }})</span>
-        </div>
-
-        <div v-if="dbInfo.type === 'SQLite'" class="text-gray-400 leading-relaxed space-y-2">
-          <p>系统当前使用 <span class="text-green-400 font-medium">SQLite</span> 作为数据库，数据存储在本地文件中，无需额外配置即可使用，适合单机调试和小规模使用。</p>
-          <div class="bg-gray-800/50 border border-gray-600/50 rounded p-4 space-y-3">
-            <p class="text-gray-300 font-medium text-base">切换到 PostgreSQL（生产环境）</p>
-
-            <div class="space-y-1">
-              <p class="text-gray-300 text-xs font-medium">① 安装 PostgreSQL</p>
-              <ul class="text-gray-400 text-xs space-y-0.5 list-disc list-inside">
-                <li><span class="text-gray-500">Windows：</span>从 <a href="https://www.postgresql.org/download/windows/" target="_blank" class="text-cyan-400 hover:underline">postgresql.org</a> 下载安装程序，安装时记住设置的数据库密码</li>
-                <li><span class="text-gray-500">macOS：</span><code class="text-gray-300">brew install postgresql@16 && brew services start postgresql@16</code></li>
-                <li><span class="text-gray-500">Linux：</span><code class="text-gray-300">sudo apt install postgresql</code>（Debian/Ubuntu）或 <code class="text-gray-300">sudo dnf install postgresql-server</code>（RHEL/Fedora）</li>
-                <li><span class="text-gray-500">Docker：</span><code class="text-gray-300">docker run -d --name pg -e POSTGRES_PASSWORD=密码 -p 5432:5432 postgres:16</code></li>
-              </ul>
-            </div>
-
-            <div class="space-y-1">
-              <p class="text-gray-300 text-xs font-medium">② 创建数据库</p>
-              <p class="text-gray-400 text-xs">连接 PostgreSQL 后执行以下 SQL 创建数据库：</p>
-              <pre class="bg-gray-900/60 rounded px-2 py-1.5 text-xs text-gray-300 overflow-x-auto">CREATE DATABASE tracesession;</pre>
-              <p class="text-gray-500 text-xs">或使用命令行：<code class="text-gray-300">createdb -U postgres tracesession</code></p>
-            </div>
-
-            <div class="space-y-1">
-              <p class="text-gray-300 text-xs font-medium">③ 配置连接信息</p>
-              <p class="text-gray-400 text-xs">用任意文本编辑器打开 <code class="text-gray-300">Timing Server Record Backend/backend/.env</code> 文件（如果没有则新建），写入：</p>
-              <pre class="bg-gray-900/60 rounded px-2 py-1.5 text-xs text-gray-300 overflow-x-auto">DATABASE_URL=postgresql://postgres:你的密码@localhost:5432/tracesession</pre>
-              <p class="text-gray-500 text-xs">将 <code class="text-gray-300">你的密码</code> 替换为安装 PostgreSQL 时设置的密码。如果数据库不在本机，将 <code class="text-gray-300">localhost</code> 改为对应 IP 地址。</p>
-            </div>
-
-            <div class="space-y-1">
-              <p class="text-gray-300 text-xs font-medium">④ 重启后端</p>
-              <p class="text-gray-400 text-xs">关掉当前后端（<span class="text-gray-300">Ctrl+C</span>），然后任选一种方式启动：</p>
-              <ul class="text-gray-400 text-xs space-y-0.5 list-disc list-inside">
-                <li>双击项目根目录的 <code class="text-gray-300">start.bat</code>（Windows）或 <code class="text-gray-300">start.sh</code>（Mac/Linux）</li>
-                <li>或在 <code class="text-gray-300">Timing Server Record Backend/backend/</code> 目录下执行 <code class="text-gray-300">npm start</code></li>
-              </ul>
-              <p class="text-gray-500 text-xs">后端启动时会自动检测 <code class="text-gray-300">DATABASE_URL</code> 并切换到 PostgreSQL，自动同步数据库表结构。</p>
-            </div>
-
-            <div class="space-y-1">
-              <p class="text-gray-300 text-xs font-medium">⑤ 验证切换成功</p>
-              <p class="text-gray-400 text-xs">刷新本页面，标题栏的数据库标签应从 <span class="bg-green-900/30 text-green-400 px-1 rounded text-xs">SQLite</span> 变为 <span class="bg-blue-900/30 text-blue-400 px-1 rounded text-xs">PostgreSQL</span>。</p>
-            </div>
-          </div>
-        </div>
-
-        <div v-else class="text-gray-400 leading-relaxed space-y-2">
-          <p>系统当前使用 <span class="text-blue-400 font-medium">PostgreSQL</span> 作为数据库，适合多服务器并发和生产环境部署。</p>
-          <div class="bg-gray-800/50 border border-gray-600/50 rounded p-4 space-y-3">
-            <p class="text-gray-300 font-medium text-base">切换回 SQLite（本地调试）</p>
-            <div class="space-y-1">
-              <p class="text-gray-400 text-xs">用任意文本编辑器打开 <code class="text-gray-300">Timing Server Record Backend/backend/.env</code> 文件：</p>
-              <ul class="text-gray-400 text-xs space-y-1 list-disc list-inside">
-                <li>将 <code class="text-gray-300">DATABASE_URL=postgresql://...</code> 整行删除或行首加 <code class="text-gray-300">#</code> 注释掉</li>
-                <li>保存文件</li>
-              </ul>
-            </div>
-            <div class="space-y-1">
-              <p class="text-gray-400 text-xs">关掉当前后端（<span class="text-gray-300">Ctrl+C</span>），然后任选一种方式重启：</p>
-              <ul class="text-gray-400 text-xs space-y-0.5 list-disc list-inside">
-                <li>双击项目根目录的 <code class="text-gray-300">start.bat</code>（Windows）或 <code class="text-gray-300">start.sh</code>（Mac/Linux）</li>
-                <li>或在 <code class="text-gray-300">Timing Server Record Backend/backend/</code> 目录下执行 <code class="text-gray-300">npm start</code></li>
-              </ul>
-              <p class="text-gray-500 text-xs">启动脚本检测到 <code class="text-gray-300">DATABASE_URL</code> 为空后，会自动使用 SQLite，在 <code class="text-gray-300">backend/data/tracesession.db</code> 创建数据库文件。</p>
-            </div>
-            <div class="space-y-1">
-              <p class="text-gray-300 text-xs font-medium">注意</p>
-              <p class="text-gray-400 text-xs">PostgreSQL 中的数据不会自动迁移到 SQLite。切换数据库类型会使用全新的数据存储，原有数据请提前备份。</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <p v-else class="text-sm text-gray-500">加载中...</p>
-    </GlowCard>
-
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-      <GlowCard cardClass="card card-deco-bar card-deco-ring p-4 sm:p-6" hoverClass="">
-        <h3 class="text-base font-semibold mb-3 text-amber-400 flex items-center gap-2">
-          <svg class="w-4 h-4" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="12" height="12" rx="2"/><path d="M5 8l2 2 4-4"/></svg>
-          服务器管理
-        </h3>
-        <ul class="space-y-2 text-sm text-gray-400">
-          <li class="flex gap-2"><span class="text-amber-400 shrink-0">·</span>多服务器统一监控，实时显示在线状态、TPS、MSPT</li>
-          <li class="flex gap-2"><span class="text-amber-400 shrink-0">·</span>自动检测服务器离线（90 秒无心跳）并关闭残留会话</li>
-          <li class="flex gap-2"><span class="text-amber-400 shrink-0">·</span>支持为服务器添加备注标识</li>
-          <li class="flex gap-2"><span class="text-amber-400 shrink-0">·</span>远程控制台，支持文字聊天广播和玩家等级指令执行</li>
-          <li class="flex gap-2"><span class="text-amber-400 shrink-0">·</span>显示游戏模式、模组加载器信息</li>
-          <li class="flex gap-2"><span class="text-amber-400 shrink-0">·</span>30 天数据自动清理</li>
-        </ul>
-      </GlowCard>
-
-      <GlowCard cardClass="card card-deco-side card-deco-corner p-4 sm:p-6" hoverClass="">
-        <h3 class="text-base font-semibold mb-3 text-green-400 flex items-center gap-2">
-          <svg class="w-4 h-4" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 1v14M1 8h14"/><circle cx="8" cy="8" r="3"/></svg>
-          玩家分析
-        </h3>
-        <ul class="space-y-2 text-sm text-gray-400">
-          <li class="flex gap-2"><span class="text-green-400 shrink-0">·</span>每位玩家的总在线时长、活跃天数、日均在线统计</li>
-          <li class="flex gap-2"><span class="text-green-400 shrink-0">·</span>近 30 天每日/每周在线趋势图表</li>
-          <li class="flex gap-2"><span class="text-green-400 shrink-0">·</span>24 小时活跃时段分布分析</li>
-          <li class="flex gap-2"><span class="text-green-400 shrink-0">·</span>星期分布饼图</li>
-          <li class="flex gap-2"><span class="text-green-400 shrink-0">·</span>死亡总数统计</li>
-          <li class="flex gap-2"><span class="text-green-400 shrink-0">·</span>最近会话记录列表</li>
-        </ul>
-      </GlowCard>
-
-      <GlowCard cardClass="card card-deco-dash card-deco-ring p-4 sm:p-6" hoverClass="">
-        <h3 class="text-base font-semibold mb-3 text-blue-400 flex items-center gap-2">
-          <svg class="w-4 h-4" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 8a6 6 0 0 1 12 0"/><path d="M2 8a6 6 0 0 0 12 0"/><circle cx="8" cy="8" r="2"/></svg>
-          实时监控
-        </h3>
-        <ul class="space-y-2 text-sm text-gray-400">
-          <li class="flex gap-2"><span class="text-blue-400 shrink-0">·</span>仪表盘 5 秒自动刷新，实时显示玩家加入/离开事件</li>
-          <li class="flex gap-2"><span class="text-blue-400 shrink-0">·</span>服务器在线状态实时检测</li>
-          <li class="flex gap-2"><span class="text-blue-400 shrink-0">·</span>各服务器玩家数量统计</li>
-          <li class="flex gap-2"><span class="text-blue-400 shrink-0">·</span>服务器活跃玩家排行榜</li>
-        </ul>
-      </GlowCard>
-
-      <GlowCard cardClass="card card-deco-bar card-deco-corner p-4 sm:p-6" hoverClass="">
-        <h3 class="text-base font-semibold mb-3 text-purple-400 flex items-center gap-2">
-          <svg class="w-4 h-4" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 3h8v10H4zM7 6h2v1H7zM7 8h2v1H7z"/></svg>
-          技术栈
-        </h3>
-        <ul class="space-y-2 text-sm text-gray-400">
-          <li class="flex gap-2"><span class="text-purple-400 shrink-0">·</span><span class="text-gray-500">前端：</span>Vue 3 + TypeScript + Vite + Tailwind CSS 4</li>
-          <li class="flex gap-2"><span class="text-purple-400 shrink-0">·</span><span class="text-gray-500">图表：</span>ECharts 5 + vue-echarts 7</li>
-          <li class="flex gap-2"><span class="text-purple-400 shrink-0">·</span><span class="text-gray-500">后端：</span>Express + TypeScript + Prisma ORM + PostgreSQL</li>
-          <li class="flex gap-2"><span class="text-purple-400 shrink-0">·</span><span class="text-gray-500">模组：</span>NeoForge (Minecraft 1.21.1, Java 21)</li>
-          <li class="flex gap-2"><span class="text-purple-400 shrink-0">·</span><span class="text-gray-500">通信：</span>HTTPS 加密</li>
-        </ul>
-      </GlowCard>
-    </div>
-  </div>
+    <el-row :gutter="16">
+      <el-col v-for="card in featureCards" :key="card.title" :xs="24" :sm="12" :lg="6">
+        <el-card shadow="hover" class="feature-card">
+          <template #header>
+            <el-space>
+              <el-icon><component :is="card.icon" /></el-icon>
+              <span>{{ card.title }}</span>
+            </el-space>
+          </template>
+          <el-check-tag v-for="item in card.items" :key="item" checked class="mr-2 mb-2">{{ item }}</el-check-tag>
+        </el-card>
+      </el-col>
+    </el-row>
+  </el-space>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
-import { fetchDbType } from "../api/index.js";
-import type { DbInfo } from "../api/index.js";
-import GlowCard from "../components/GlowCard.vue";
+import { onMounted, ref } from "vue";
+import { useRouter } from "vue-router";
+import { ChatLineRound, DataAnalysis, Monitor, User } from "@element-plus/icons-vue";
+import { fetchDbType, type DbInfo } from "../api/index.js";
 
+const router = useRouter();
 const dbInfo = ref<DbInfo | null>(null);
+const featureCards = [
+  { title: "服务器管理", icon: Monitor, items: ["状态检测", "TPS/MSPT", "备注", "多服务器"] },
+  { title: "玩家画像", icon: User, items: ["在线时长", "活跃分层", "维度快照", "死亡统计"] },
+  { title: "数据图表", icon: DataAnalysis, items: ["每日趋势", "每周趋势", "时段分布", "维度分布"] },
+  { title: "聊天终端", icon: ChatLineRound, items: ["广播", "普通权限指令", "外部 API", "聊天记录"] },
+];
+
 onMounted(() => {
   fetchDbType().then(info => { dbInfo.value = info; }).catch(() => {});
 });

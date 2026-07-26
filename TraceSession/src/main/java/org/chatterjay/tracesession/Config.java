@@ -24,16 +24,31 @@ public class Config
             .comment("Server display name")
             .define("serverName", "Minecraft Server");
 
+    private static final ModConfigSpec.ConfigValue<String> API_KEY = BUILDER
+            .comment("Optional backend API key. Must match TRACESESSION_API_KEY when the backend is accessed remotely.")
+            .define("apiKey", "");
+
     private static final ModConfigSpec.ConfigValue<String> MOD_LOADER = BUILDER
             .comment("Mod loader type identifier")
             .define("modLoader", "NeoForge");
+
+    private static final ModConfigSpec.BooleanValue ENABLE_DEBUG_COMMANDS = BUILDER
+            .comment("Enable OP-only TraceSession debug commands that can write test data")
+            .define("enableDebugCommands", false);
+
+    private static final ModConfigSpec.IntValue COMMAND_POLL_SECONDS = BUILDER
+            .comment("How often the mod checks for queued web terminal commands")
+            .defineInRange("commandPollSeconds", 2, 1, 30);
 
     static final ModConfigSpec SPEC = BUILDER.build();
 
     public static String backendUrl;
     public static String serverId;
     public static String serverName;
+    public static String apiKey;
     public static String modLoader;
+    public static boolean enableDebugCommands;
+    public static int commandPollSeconds;
 
     @SubscribeEvent
     static void onLoad(final ModConfigEvent event)
@@ -41,6 +56,9 @@ public class Config
         backendUrl = BACKEND_URL.get();
         serverId = SERVER_ID.get();
         serverName = SERVER_NAME.get();
+        apiKey = API_KEY.get();
         modLoader = MOD_LOADER.get();
+        enableDebugCommands = ENABLE_DEBUG_COMMANDS.get();
+        commandPollSeconds = COMMAND_POLL_SECONDS.get();
     }
 }

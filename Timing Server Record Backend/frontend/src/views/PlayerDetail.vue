@@ -1,284 +1,264 @@
 <template>
-  <div class="space-y-6" v-if="player">
-    <router-link to="/"
-      class="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg transition-all text-gray-500 hover:text-gray-300"
-      :style="{ background: 'var(--card-bg)', border: '1px solid var(--card-border)' }">
-      <svg class="w-3.5 h-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10 12L6 8l4-4"/></svg>
-      返回
-    </router-link>
-
-    <GlowCard cardClass="card card-deco-bar card-deco-corner p-4 sm:p-6" hoverClass="">
-      <div class="flex flex-col sm:flex-row items-center sm:items-center gap-4 sm:gap-5">
-        <img :src="`https://mc-heads.net/avatar/${(player?.uuid || '').replace(/-/g, '')}/100`" :alt="player.name"
-          class="w-14 h-14 sm:w-16 sm:h-16 rounded-xl ring-2 ring-gray-700 shrink-0"
-          @error="(e: any) => { if (!e.target.src.includes('MHF_Steve')) e.target.src = 'https://mc-heads.net/avatar/MHF_Steve/100'; }" />
-        <div class="text-center sm:text-left min-w-0 flex-1">
-          <h2 class="text-xl sm:text-2xl font-bold text-gray-200 flex flex-col sm:flex-row items-center sm:items-center gap-1 sm:gap-3">
-            {{ player.name }}
-            <span class="text-xs font-mono text-gray-500 font-normal truncate max-w-full">{{ player.uuid }}</span>
-          </h2>
-          <p class="text-xs sm:text-sm text-gray-500 mt-1">总在线 {{ totalHours }} 小时 · 首次记录 {{ new Date(player.firstSeen).toLocaleDateString() }}</p>
-        </div>
-        <img :src="`https://mc-heads.net/body/${(player?.uuid || '').replace(/-/g, '')}/64`" alt=""
-          class="hidden sm:block w-16 h-24 opacity-60" />
+  <section v-if="player" class="ts-page">
+    <div class="ts-page-head">
+      <div>
+        <el-space wrap>
+          <el-button text @click="router.back()">返回上一页</el-button>
+          <el-button text @click="router.push('/')">返回总览</el-button>
+        </el-space>
+        <h1>{{ player.name }}</h1>
       </div>
-    </GlowCard>
-
-    <div class="grid grid-cols-2 sm:grid-cols-5 gap-3">
-      <GlowCard cardClass="card-stat card-stat-accent-amber p-4 text-center" hoverClass="">
-        <div class="text-xl sm:text-2xl font-bold text-amber-400">{{ totalHours }}h</div>
-        <div class="text-xs text-gray-500 mt-1">总在线</div>
-      </GlowCard>
-      <GlowCard cardClass="card-stat card-stat-accent-green p-4 text-center" hoverClass="">
-        <div class="text-xl sm:text-2xl font-bold text-green-400">{{ activeDays }}天</div>
-        <div class="text-xs text-gray-500 mt-1">活跃天数</div>
-      </GlowCard>
-      <GlowCard cardClass="card-stat card-stat-accent-blue p-4 text-center" hoverClass="">
-        <div class="text-xl sm:text-2xl font-bold text-blue-400">{{ activeDays > 0 ? fmt(avgDaily) : "-" }}</div>
-        <div class="text-xs text-gray-500 mt-1">日均在线</div>
-      </GlowCard>
-      <GlowCard cardClass="card-stat card-stat-accent-purple p-4 text-center" hoverClass="">
-        <div class="text-xl sm:text-2xl font-bold text-purple-400">{{ peakHour !== null ? `${peakHour}:00` : "-" }}</div>
-        <div class="text-xs text-gray-500 mt-1">最活跃时段</div>
-      </GlowCard>
-      <GlowCard cardClass="card-stat card-stat-accent-pink p-4 text-center" hoverClass="">
-        <div class="text-xl sm:text-2xl font-bold text-pink-400">{{ player.stats?.deaths ?? 0 }}</div>
-        <div class="text-xs text-gray-500 mt-1">死亡总数</div>
-      </GlowCard>
+      <el-button :icon="Refresh" :loading="loading" @click="load">刷新</el-button>
     </div>
 
-    <div class="flex gap-1 bg-gray-800/30 rounded-lg p-1 border border-gray-700/30 overflow-x-auto w-fit animate-fade-in-d1">
-      <button v-for="tab in tabs" :key="tab.key" @click="chartTab = tab.key"
-        class="cursor-pointer px-4 py-2 text-sm rounded-md transition-all whitespace-nowrap"
-        :class="chartTab === tab.key ? 'bg-amber-500/20 text-amber-400 font-medium shadow-sm' : 'text-gray-400 hover:text-gray-200 hover:bg-gray-700/30'">
-        {{ tab.label }}
-      </button>
-    </div>
+    <el-alert v-if="connectionError" :title="connectionError" type="warning" show-icon :closable="false" />
 
-    <GlowCard cardClass="card card-deco-side card-deco-foot p-4 sm:p-6" hoverClass="">
-      <template v-if="chartTab === 'daily'">
-        <h3 class="text-base font-semibold mb-4 text-gray-200 deco-title">近 30 天每日在线时长</h3>
-        <VChart :option="dailyOption" autoresize style="height:260px;width:100%" />
-      </template>
-      <template v-if="chartTab === 'weekly'">
-        <h3 class="text-base font-semibold mb-4 text-gray-200 deco-title">近 12 周每周在线时长</h3>
-        <VChart :option="weeklyOption" autoresize style="height:260px;width:100%" />
-      </template>
-      <template v-if="chartTab === 'hourly'">
-        <h3 class="text-base font-semibold mb-4 text-gray-200 deco-title">24 小时活跃时段分布</h3>
-        <VChart :option="hourlyOption" autoresize style="height:200px;width:100%" />
-        <div class="flex justify-between text-xs text-gray-600 mt-2 px-2">
-          <span>0点</span><span>4点</span><span>8点</span><span>12点</span><span>16点</span><span>20点</span><span>24点</span>
-        </div>
-      </template>
-    </GlowCard>
-
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 animate-fade-in-d2">
-      <GlowCard cardClass="card card-deco-dash card-deco-ring p-4 sm:p-6" hoverClass="">
-        <h3 class="text-base font-semibold mb-4 text-gray-200 deco-title">星期分布</h3>
-        <div v-if="weekdayData.some(d => d.hours > 0)">
-          <VChart :option="weekdayOption" autoresize style="height:260px;width:100%" />
-        </div>
-        <div v-else class="flex items-center justify-center h-[260px] text-gray-500 text-sm">暂无数据</div>
-      </GlowCard>
-      <GlowCard cardClass="card card-deco-bar card-deco-corner p-4 sm:p-6" hoverClass="">
-        <h3 class="text-base font-semibold mb-4 text-gray-200 deco-title">每日曲线</h3>
-        <VChart :option="dailyOption2" autoresize style="height:260px;width:100%" />
-      </GlowCard>
-    </div>
-
-    <GlowCard cardClass="card card-deco-side card-deco-ring p-4 space-y-3 animate-fade-in-d3" hoverClass="" radius="12px">
-      <h3 class="text-lg font-semibold text-gray-200 deco-title">最近会话</h3>
-      <div class="card-list">
-        <div class="min-w-[520px]">
-          <div v-for="s in player.recentSessions" :key="s.id"
-            class="flex items-center gap-2 sm:gap-4 px-4 sm:px-5 py-3 border-b border-gray-700/50 last:border-0 text-xs sm:text-sm hover:bg-gray-700/30 transition-colors">
-            <span class="w-2 h-2 rounded-full bg-green-400 shrink-0" />
-            <span class="text-gray-300 w-16 sm:w-24 shrink-0 truncate">{{ s.server.name }}</span>
-            <span class="text-gray-500 whitespace-nowrap">{{ new Date(s.joinTime).toLocaleString() }}</span>
-            <span class="text-gray-600 shrink-0">&rarr;</span>
-            <span class="text-gray-500 whitespace-nowrap">{{ s.leaveTime ? new Date(s.leaveTime).toLocaleString() : "在线中" }}</span>
-            <span class="ml-auto text-gray-400 font-mono shrink-0">{{ fmt(s.durationSeconds) }}</span>
+    <div class="ts-detail-grid">
+      <aside class="ts-control-column">
+        <el-card shadow="never">
+          <template #header>玩家资料</template>
+          <div class="ts-player-card">
+            <el-avatar :src="avatarUrl(player.uuid, 96)" shape="square" :size="96" />
+            <el-tag :type="profileTagType">{{ profileLabel }}</el-tag>
           </div>
-          <div v-if="player.recentSessions.length === 0" class="p-6 text-gray-500 text-center text-sm">暂无会话</div>
-        </div>
-      </div>
-    </GlowCard>
-  </div>
+          <el-descriptions :column="1" border>
+            <el-descriptions-item label="UUID">{{ player.uuid }}</el-descriptions-item>
+            <el-descriptions-item label="首次记录">{{ formatDateTime(player.firstSeen) }}</el-descriptions-item>
+            <el-descriptions-item label="最后出现">{{ timeAgo(player.lastSeen) }}</el-descriptions-item>
+          </el-descriptions>
+        </el-card>
 
-  <div v-else class="flex items-center justify-center py-20">
-    <div class="text-gray-500 text-sm">加载中...</div>
-  </div>
+        <el-card shadow="never">
+          <template #header>最新快照</template>
+          <el-descriptions v-if="player.latestSnapshot" :column="1" border>
+            <el-descriptions-item label="维度">{{ dimensionLabel(player.latestSnapshot.dimension) }}</el-descriptions-item>
+            <el-descriptions-item label="坐标">{{ snapshotPosition(player.latestSnapshot) }}</el-descriptions-item>
+            <el-descriptions-item label="生命">{{ player.latestSnapshot.health ?? "-" }} / {{ player.latestSnapshot.maxHealth ?? "-" }}</el-descriptions-item>
+            <el-descriptions-item label="饥饿">{{ player.latestSnapshot.foodLevel ?? "-" }}</el-descriptions-item>
+            <el-descriptions-item label="等级">{{ player.latestSnapshot.experienceLevel ?? "-" }}</el-descriptions-item>
+            <el-descriptions-item label="延迟">{{ player.latestSnapshot.latency ?? "-" }}ms</el-descriptions-item>
+          </el-descriptions>
+          <el-empty v-else description="暂无快照" />
+        </el-card>
+      </aside>
+
+      <main class="ts-content-column">
+        <el-row :gutter="12">
+          <el-col v-for="card in statCards" :key="card.label" :xs="12" :md="4">
+            <el-card shadow="never" class="ts-metric">
+              <div class="ts-metric-value">{{ card.value }}</div>
+              <div class="ts-metric-label">{{ card.label }}</div>
+            </el-card>
+          </el-col>
+        </el-row>
+
+        <el-card shadow="never" class="ts-workbench">
+          <el-tabs v-model="activeTab">
+            <el-tab-pane label="画像" name="profile">
+              <el-table :data="insights" height="420" stripe>
+                <el-table-column prop="label" label="判断" width="130" />
+                <el-table-column prop="value" label="说明" show-overflow-tooltip />
+              </el-table>
+            </el-tab-pane>
+            <el-tab-pane label="趋势" name="trend">
+              <div class="ts-two-charts">
+                <section>
+                  <h3>每日在线折线</h3>
+                  <VChart :option="dailyOption" autoresize class="ts-chart-lg" />
+                </section>
+                <section>
+                  <h3>每周在线柱状</h3>
+                  <VChart :option="weeklyOption" autoresize class="ts-chart-lg" />
+                </section>
+              </div>
+            </el-tab-pane>
+            <el-tab-pane label="分布" name="distribution">
+              <div class="ts-two-charts">
+                <section>
+                  <h3>24 小时分布</h3>
+                  <VChart :option="hourlyOption" autoresize class="ts-chart-lg" />
+                </section>
+                <section>
+                  <h3>星期占比</h3>
+                  <VChart :option="weekdayOption" autoresize class="ts-chart-lg" />
+                </section>
+              </div>
+            </el-tab-pane>
+            <el-tab-pane label="会话" name="sessions">
+              <el-table :data="player.recentSessions" height="520" stripe row-key="id">
+                <el-table-column label="服务器" min-width="180" show-overflow-tooltip><template #default="{ row }">{{ row.server.note || row.server.name }}</template></el-table-column>
+                <el-table-column label="开始" width="180"><template #default="{ row }">{{ formatDateTime(row.joinTime) }}</template></el-table-column>
+                <el-table-column label="结束" width="180"><template #default="{ row }">{{ row.leaveTime ? formatDateTime(row.leaveTime) : "在线中" }}</template></el-table-column>
+                <el-table-column label="时长" width="130"><template #default="{ row }">{{ formatDuration(row.durationSeconds) }}</template></el-table-column>
+              </el-table>
+            </el-tab-pane>
+          </el-tabs>
+        </el-card>
+      </main>
+    </div>
+  </section>
+
+  <el-empty v-else :description="connectionError || '加载中...'" />
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from "vue";
-import { useRoute } from "vue-router";
+import { computed, onMounted, onUnmounted, ref } from "vue";
+import { useRoute, useRouter } from "vue-router";
+import { Refresh } from "@element-plus/icons-vue";
 import { use } from "echarts/core";
 import { CanvasRenderer } from "echarts/renderers";
 import { BarChart, LineChart, PieChart } from "echarts/charts";
-import {
-  GridComponent, TooltipComponent, LegendComponent,
-  CalendarComponent,
-} from "echarts/components";
+import { GridComponent, LegendComponent, TooltipComponent } from "echarts/components";
 import VChart from "vue-echarts";
-import GlowCard from "../components/GlowCard.vue";
-import { CHART_COLORS, useTheme, useTooltipStyle, axisLabelStyle, axisYStyle, pieLabelStyle, pieLabelLineStyle } from "../composables/useChartTheme";
-import {
-  fetchPlayer, fetchPlayerDailyStats, fetchPlayerWeeklyStats,
-  fetchPlayerHourlyStats, fetchPlayerWeekdayStats,
-  type PlayerProfile, type StatsPoint, type HourlyStats, type WeekdayStats,
-} from "../api/index.js";
+import { CHART_COLORS, axisLabelStyle, axisYStyle, pieLabelLineStyle, pieLabelStyle, useTheme, useTooltipStyle } from "../composables/useChartTheme";
+import { fetchPlayer, fetchPlayerDailyStats, fetchPlayerHourlyStats, fetchPlayerWeekdayStats, fetchPlayerWeeklyStats, type HourlyStats, type PlayerProfile, type PlayerSnapshot, type StatsPoint, type WeekdayStats } from "../api/index.js";
 
-use([CanvasRenderer, BarChart, LineChart, PieChart, GridComponent, TooltipComponent, LegendComponent, CalendarComponent]);
+use([CanvasRenderer, BarChart, LineChart, PieChart, GridComponent, TooltipComponent, LegendComponent]);
 
-const WEEKDAY_NAMES = ["周日", "周一", "周二", "周三", "周四", "周五", "周六"];
-
-const dark = useTheme();
-const tooltipStyle = useTooltipStyle();
+type PlayerTab = "profile" | "trend" | "distribution" | "sessions";
 
 const route = useRoute();
+const router = useRouter();
 const uuid = route.params.uuid as string;
-
+const dark = useTheme();
+const tooltipStyle = useTooltipStyle();
 const player = ref<PlayerProfile | null>(null);
 const dailyStats = ref<StatsPoint[]>([]);
 const weeklyStats = ref<StatsPoint[]>([]);
 const hourlyStats = ref<HourlyStats[]>([]);
 const weekdayStats = ref<WeekdayStats[]>([]);
-const chartTab = ref<"daily" | "weekly" | "hourly">("daily");
-
-const tabs = [
-  { key: "daily" as const, label: "每日趋势" },
-  { key: "weekly" as const, label: "每周趋势" },
-  { key: "hourly" as const, label: "时段分布" },
-];
-
-const fmt = (sec: number | null) => {
-  if (!sec) return "-";
-  const h = Math.floor(sec / 3600);
-  const m = Math.floor((sec % 3600) / 60);
-  return h > 0 ? `${h}h ${m}m` : `${m}m`;
-};
-
-const totalHours = computed(() => player.value ? (player.value.stats.totalPlayTime > 0 ? (player.value.stats.totalPlayTime / 3600).toFixed(1) : "0") : "0");
-
-const activeDays = computed(() => dailyStats.value.filter(d => d.totalSeconds > 0).length);
-
-const avgDaily = computed(() => {
-  if (activeDays.value === 0) return 0;
-  return dailyStats.value.reduce((s, d) => s + d.totalSeconds, 0) / activeDays.value;
-});
-
-const peakHour = computed(() => {
-  if (hourlyStats.value.length === 0) return null;
-  return hourlyStats.value.reduce((b, h) => h.totalSeconds > (b?.totalSeconds || 0) ? h : b, hourlyStats.value[0]).hour;
-});
-
-const dailyData = computed(() => dailyStats.value.map(d => ({ date: d.date.slice(5), hours: +(d.totalSeconds / 3600).toFixed(1) })));
-const weeklyData = computed(() => weeklyStats.value.map(w => ({ week: w.date.slice(5), hours: +(w.totalSeconds / 3600).toFixed(1) })));
-const hourlyData = computed(() => {
-  return Array.from({ length: 24 }, (_, i) => {
-    const found = hourlyStats.value.find(h => h.hour === i);
-    return { hour: `${i.toString().padStart(2, "0")}:00`, hours: found ? +(found.totalSeconds / 3600).toFixed(2) : 0 };
-  });
-});
-const weekdayData = computed(() => WEEKDAY_NAMES.map((name, i) => {
-  const found = weekdayStats.value.find(w => w.day === i);
-  return { name, hours: found ? +(found.totalSeconds / 3600).toFixed(1) : 0 };
-}));
-
-
-const dailyOption = computed(() => {
-  const al = axisLabelStyle(dark.value);
-  const ay = axisYStyle(dark.value);
-  return {
-    tooltip: { ...tooltipStyle.value, trigger: "axis" as const, formatter: (p: any) => `${Number(p[0]?.value || 0).toFixed(1)} 小时` },
-    grid: { left: 40, right: 16, top: 8, bottom: 20 },
-    xAxis: { type: "category" as const, data: dailyData.value.map(d => d.date), axisLine: { show: false }, axisTick: { show: false }, axisLabel: al },
-    yAxis: { type: "value" as const, name: "h", ...ay },
-    series: [{
-      type: "line" as const, data: dailyData.value.map(d => d.hours),
-      smooth: true, showSymbol: false,
-      lineStyle: { color: "#fbbf24", width: 2 },
-      areaStyle: { color: { type: "linear" as const, x: 0, y: 0, x2: 0, y2: 1, colorStops: [{ offset: 0, color: "rgba(251,191,36,0.25)" }, { offset: 1, color: "rgba(251,191,36,0)" }] } },
-    }],
-  };
-});
-
-const weeklyOption = computed(() => {
-  const al = axisLabelStyle(dark.value);
-  const ay = axisYStyle(dark.value);
-  return {
-    tooltip: { ...tooltipStyle.value, trigger: "axis" as const, formatter: (p: any) => `${Number(p[0]?.value || 0).toFixed(1)} 小时` },
-    grid: { left: 40, right: 16, top: 8, bottom: 20 },
-    xAxis: { type: "category" as const, data: weeklyData.value.map(w => w.week), axisLine: { show: false }, axisTick: { show: false }, axisLabel: al },
-    yAxis: { type: "value" as const, name: "h", ...ay },
-    series: [{
-      type: "bar" as const, data: weeklyData.value.map(w => w.hours),
-      itemStyle: { color: "#34d399", borderRadius: [4, 4, 0, 0] },
-      barMaxWidth: 40,
-    }],
-  };
-});
-
-const hourlyOption = computed(() => ({
-  tooltip: { ...tooltipStyle.value, trigger: "axis" as const, formatter: (p: any) => `${Number(p[0]?.value || 0).toFixed(1)} 小时` },
-  grid: { left: 4, right: 4, top: 4, bottom: 0 },
-  xAxis: { type: "category" as const, data: hourlyData.value.map(h => h.hour), axisLine: { show: false }, axisTick: { show: false }, axisLabel: { show: false } },
-  yAxis: { type: "value" as const, show: false },
-  series: [{
-    type: "bar" as const, data: hourlyData.value.map(h => h.hours),
-    itemStyle: { color: "#818cf8", borderRadius: [2, 2, 0, 0] },
-    barMaxWidth: 20,
-  }],
-}));
-
-const weekdayOption = computed(() => ({
-  tooltip: { ...tooltipStyle.value, trigger: "item" as const, formatter: (p: any) => `${p.name}: ${Number(p.value || 0).toFixed(1)} 小时` },
-  series: [{
-    type: "pie" as const,
-    data: weekdayData.value.filter(d => d.hours > 0).map((d, i) => ({ value: d.hours, name: d.name, itemStyle: { color: CHART_COLORS[i % CHART_COLORS.length] } })),
-    center: ["50%", "50%"],
-    radius: ["0%", "70%"],
-    label: { ...pieLabelStyle(dark.value), formatter: (p: any) => `${p.name} ${Number(p.value || 0).toFixed(1)}h` },
-    labelLine: pieLabelLineStyle(dark.value),
-  }],
-}));
-
-const dailyOption2 = computed(() => {
-  const al = axisLabelStyle(dark.value);
-  const ay = axisYStyle(dark.value);
-  return {
-    tooltip: { ...tooltipStyle.value, trigger: "axis" as const, formatter: (p: any) => `${Number(p[0]?.value || 0).toFixed(1)} 小时` },
-    grid: { left: 36, right: 16, top: 8, bottom: 20 },
-    xAxis: { type: "category" as const, data: dailyData.value.map(d => d.date), axisLine: { show: false }, axisTick: { show: false }, axisLabel: al },
-    yAxis: { type: "value" as const, name: "h", ...ay },
-    series: [{
-      type: "line" as const, data: dailyData.value.map(d => d.hours),
-      smooth: true, showSymbol: false,
-      lineStyle: { color: "#34d399", width: 2 },
-      areaStyle: { color: { type: "linear" as const, x: 0, y: 0, x2: 0, y2: 1, colorStops: [{ offset: 0, color: "rgba(52,211,153,0.2)" }, { offset: 1, color: "rgba(52,211,153,0)" }] } },
-    }],
-  };
-});
-
+const activeTab = ref<PlayerTab>("profile");
+const connectionError = ref("");
+const loading = ref(false);
 let timer: ReturnType<typeof setInterval> | null = null;
 
+const WEEKDAY_NAMES = ["周日", "周一", "周二", "周三", "周四", "周五", "周六"];
+const totalSeconds = computed(() => player.value?.stats.totalPlayTime ?? 0);
+const activeDays = computed(() => dailyStats.value.filter(d => d.totalSeconds > 0).length);
+const avgDaily = computed(() => activeDays.value ? totalSeconds.value / activeDays.value : 0);
+const peakHour = computed(() => {
+  if (hourlyStats.value.length === 0) return null;
+  const best = hourlyStats.value.reduce((a, b) => b.totalSeconds > a.totalSeconds ? b : a, hourlyStats.value[0]);
+  return best.totalSeconds > 0 ? best.hour : null;
+});
+const favoriteWeekday = computed(() => {
+  if (weekdayStats.value.length === 0) return "暂无";
+  const best = weekdayStats.value.reduce((a, b) => b.totalSeconds > a.totalSeconds ? b : a, weekdayStats.value[0]);
+  return best.totalSeconds > 0 ? WEEKDAY_NAMES[best.day] : "暂无";
+});
+const daysSinceLastSeen = computed(() => player.value?.lastSeen ? Math.floor((Date.now() - new Date(player.value.lastSeen).getTime()) / 86_400_000) : 9999);
+const profileLabel = computed(() => {
+  if (totalSeconds.value < 3600) return "新玩家";
+  if (daysSinceLastSeen.value >= 14) return "回流风险";
+  if (activeDays.value >= 12 || totalSeconds.value >= 72 * 3600) return "高活跃";
+  if (activeDays.value >= 4) return "稳定活跃";
+  return "轻度活跃";
+});
+const profileTagType = computed(() => profileLabel.value === "回流风险" ? "warning" : profileLabel.value === "新玩家" ? "info" : "success");
+const statCards = computed(() => [
+  { label: "总在线", value: formatDuration(totalSeconds.value) },
+  { label: "活跃天数", value: `${activeDays.value} 天` },
+  { label: "日均", value: formatDuration(avgDaily.value) },
+  { label: "偏好时段", value: peakHour.value == null ? "暂无" : `${peakHour.value}:00` },
+  { label: "偏好星期", value: favoriteWeekday.value },
+  { label: "死亡", value: player.value?.stats.deaths ?? 0 },
+]);
+const insights = computed(() => [
+  { label: "活跃分层", value: `当前判断为 ${profileLabel.value}。` },
+  { label: "时间偏好", value: `常见时段 ${peakHour.value == null ? "暂无" : `${peakHour.value}:00`}，星期偏好 ${favoriteWeekday.value}。` },
+  { label: "留存状态", value: daysSinceLastSeen.value >= 14 ? `已 ${daysSinceLastSeen.value} 天未出现。` : `最近 ${Math.max(0, daysSinceLastSeen.value)} 天内出现过。` },
+  { label: "数据质量", value: `${player.value?._count?.sessions ?? 0} 条会话，${player.value?._count?.events ?? 0} 条事件。` },
+]);
+const dailyData = computed(() => dailyStats.value.map(d => ({ label: d.date.slice(5), value: +(d.totalSeconds / 3600).toFixed(1) })));
+const weeklyData = computed(() => weeklyStats.value.map(w => ({ label: w.date.slice(5), value: +(w.totalSeconds / 3600).toFixed(1) })));
+const hourlyData = computed(() => Array.from({ length: 24 }, (_, hour) => {
+  const found = hourlyStats.value.find(h => h.hour === hour);
+  return { label: `${String(hour).padStart(2, "0")}:00`, value: found ? +(found.totalSeconds / 3600).toFixed(2) : 0 };
+}));
+const weekdayData = computed(() => WEEKDAY_NAMES.map((name, day) => {
+  const found = weekdayStats.value.find(w => w.day === day);
+  return { label: name, value: found ? +(found.totalSeconds / 3600).toFixed(1) : 0 };
+}));
+
 async function load() {
-  if (!uuid) return;
-  player.value = await fetchPlayer(uuid);
-  dailyStats.value = await fetchPlayerDailyStats(uuid);
-  weeklyStats.value = await fetchPlayerWeeklyStats(uuid);
-  hourlyStats.value = await fetchPlayerHourlyStats(uuid);
-  weekdayStats.value = await fetchPlayerWeekdayStats(uuid);
+  loading.value = true;
+  try {
+    const [profile, daily, weekly, hourly, weekday] = await Promise.all([
+      fetchPlayer(uuid),
+      fetchPlayerDailyStats(uuid),
+      fetchPlayerWeeklyStats(uuid),
+      fetchPlayerHourlyStats(uuid),
+      fetchPlayerWeekdayStats(uuid),
+    ]);
+    player.value = profile;
+    dailyStats.value = daily;
+    weeklyStats.value = weekly;
+    hourlyStats.value = hourly;
+    weekdayStats.value = weekday;
+    connectionError.value = "";
+  } catch {
+    connectionError.value = "后端暂时不可用，正在等待恢复。";
+  } finally {
+    loading.value = false;
+  }
+}
+function lineOption(labels: string[], values: number[], color: string) {
+  return {
+    tooltip: { ...tooltipStyle.value, trigger: "axis" as const },
+    grid: { left: 44, right: 20, top: 30, bottom: 32 },
+    xAxis: { type: "category" as const, data: labels, axisLabel: axisLabelStyle(dark.value), axisTick: { show: false }, axisLine: { show: false } },
+    yAxis: { type: "value" as const, ...axisYStyle(dark.value) },
+    series: [{ type: "line" as const, data: values, smooth: true, showSymbol: false, lineStyle: { color, width: 2 } }],
+  };
+}
+function barOption(labels: string[], values: number[], color: string) {
+  return {
+    tooltip: { ...tooltipStyle.value, trigger: "axis" as const },
+    grid: { left: 44, right: 20, top: 30, bottom: 32 },
+    xAxis: { type: "category" as const, data: labels, axisLabel: axisLabelStyle(dark.value), axisTick: { show: false }, axisLine: { show: false } },
+    yAxis: { type: "value" as const, ...axisYStyle(dark.value) },
+    series: [{ type: "bar" as const, data: values, itemStyle: { color, borderRadius: [4, 4, 0, 0] }, barMaxWidth: 28 }],
+  };
+}
+const dailyOption = computed(() => lineOption(dailyData.value.map(d => d.label), dailyData.value.map(d => d.value), "#67c23a"));
+const weeklyOption = computed(() => barOption(weeklyData.value.map(d => d.label), weeklyData.value.map(d => d.value), "#409eff"));
+const hourlyOption = computed(() => barOption(hourlyData.value.map(d => d.label), hourlyData.value.map(d => d.value), "#e6a23c"));
+const weekdayOption = computed(() => ({
+  tooltip: { ...tooltipStyle.value, trigger: "item" as const },
+  legend: { bottom: 0, textStyle: axisLabelStyle(dark.value) },
+  series: [{ type: "pie" as const, radius: ["38%", "72%"], data: weekdayData.value.filter(d => d.value > 0).map((d, i) => ({ name: d.label, value: d.value, itemStyle: { color: CHART_COLORS[i % CHART_COLORS.length] } })), label: pieLabelStyle(dark.value), labelLine: pieLabelLineStyle(dark.value) }],
+}));
+
+function formatDuration(seconds: number | null | undefined) {
+  if (!seconds) return "0 分钟";
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+  return hours > 0 ? `${hours} 小时 ${minutes} 分钟` : `${minutes} 分钟`;
+}
+function formatDateTime(value: string) { return new Date(value).toLocaleString(); }
+function timeAgo(value: string) {
+  const diff = Date.now() - new Date(value).getTime();
+  if (diff < 60_000) return `${Math.max(1, Math.floor(diff / 1000))} 秒前`;
+  if (diff < 3_600_000) return `${Math.floor(diff / 60_000)} 分钟前`;
+  if (diff < 86_400_000) return `${Math.floor(diff / 3_600_000)} 小时前`;
+  return `${Math.floor(diff / 86_400_000)} 天前`;
+}
+function avatarUrl(id: string, size: number) { return `https://mc-heads.net/avatar/${id.replace(/-/g, "")}/${size}`; }
+function dimensionLabel(value?: string | null) {
+  if (!value) return "未知维度";
+  if (value.endsWith("overworld")) return "主世界";
+  if (value.endsWith("the_nether")) return "下界";
+  if (value.endsWith("the_end")) return "末地";
+  return value;
+}
+function snapshotPosition(snapshot?: PlayerSnapshot | null) {
+  if (!snapshot || snapshot.x == null || snapshot.y == null || snapshot.z == null) return "-";
+  return `${snapshot.x}, ${snapshot.y}, ${snapshot.z}`;
 }
 
 onMounted(() => {
   load();
-  timer = setInterval(load, 30000);
+  timer = setInterval(load, 10_000);
 });
-
-onUnmounted(() => {
-  if (timer) clearInterval(timer);
-});
+onUnmounted(() => { if (timer) clearInterval(timer); });
 </script>

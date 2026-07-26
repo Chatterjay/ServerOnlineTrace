@@ -10,14 +10,38 @@ import playersRouter from "./routes/players.js";
 import eventsRouter from "./routes/events.js";
 import commandsRouter from "./routes/commands.js";
 import chatRouter from "./routes/chat.js";
+import broadcastRouter from "./routes/broadcast.js";
+import outboundRouter from "./routes/outbound.js";
+import { allowedCorsOrigins, configuredApiKey, isLoopbackRequest, requireTrustedRequest } from "./security.js";
 
 const app = express();
 const HTTP_PORT = parseInt(process.env.HTTP_PORT || "27890");
 const HTTPS_PORT = parseInt(process.env.HTTPS_PORT || "27891");
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-app.use(cors());
-app.use(express.json());
+const corsOrigins = allowedCorsOrigins();
+app.use(cors({
+  origin(origin, callback) {
+    if (!origin || corsOrigins.length === 0 || corsOrigins.includes(origin) || /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)) {
+      callback(null, true);
+      return;
+    }
+    callback(new Error("Not allowed by TraceSession CORS policy"));
+  },
+}));
+app.use(express.json({ limit: "256kb" }));
+
+app.use("/api", (req, res, next) => {
+  if (req.path === "/health") {
+    next();
+    return;
+  }
+  if (req.method === "GET" && process.env.TRACESESSION_REQUIRE_API_KEY_FOR_READS !== "true") {
+    next();
+    return;
+  }
+  requireTrustedRequest(req, res, next);
+});
 
 // API routes
 app.use("/api/servers", serversRouter);
@@ -25,10 +49,16 @@ app.use("/api/players", playersRouter);
 app.use("/api/events", eventsRouter);
 app.use("/api/servers", commandsRouter);
 app.use("/api/servers", chatRouter);
+app.use("/api/broadcast", broadcastRouter);
+app.use("/api/outbound", outboundRouter);
 
 // Health check
 app.get("/api/health", (_req, res) => {
-  res.json({ ok: true, time: new Date().toISOString() });
+  res.json({
+    ok: true,
+    time: new Date().toISOString(),
+    apiKeyConfigured: Boolean(configuredApiKey()),
+  });
 });
 
 // Report database type
@@ -36,6 +66,14 @@ app.get("/api/db-type", (_req, res) => {
   const url = process.env.DATABASE_URL || "";
   const type = url.startsWith("postgresql") ? "PostgreSQL" : "SQLite";
   res.json({ type, file: type === "SQLite" ? "data/tracesession.db" : null });
+});
+
+app.get("/api/security", (req, res) => {
+  res.json({
+    apiKeyConfigured: Boolean(configuredApiKey()),
+    trustedRequest: isLoopbackRequest(req),
+    corsOrigins: corsOrigins.length > 0 ? corsOrigins : ["same-origin", "localhost"],
+  });
 });
 
 // ── Serve frontend static files (production build) ──

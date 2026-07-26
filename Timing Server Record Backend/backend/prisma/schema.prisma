@@ -23,6 +23,7 @@ model Server {
   firstSeen     DateTime  @default(now())
   sessions      Session[]
   events        Event[]
+  snapshots     PlayerSnapshot[]
 }
 
 model Player {
@@ -32,6 +33,7 @@ model Player {
   lastSeen  DateTime  @default(now())
   sessions  Session[]
   events    Event[]
+  snapshots PlayerSnapshot[]
 }
 
 model Session {
@@ -62,4 +64,28 @@ model Event {
   @@index([serverId])
   @@index([timestamp])
   @@index([type])
+}
+
+model PlayerSnapshot {
+  id              String   @id @default(uuid())
+  playerUuid      String
+  serverId        String
+  timestamp       DateTime @default(now())
+  name            String
+  dimension       String?
+  x               Int?
+  y               Int?
+  z               Int?
+  health          Float?
+  maxHealth       Float?
+  foodLevel       Int?
+  experienceLevel Int?
+  gameMode        String?
+  latency         Int?
+  player          Player   @relation(fields: [playerUuid], references: [uuid])
+  server          Server   @relation(fields: [serverId], references: [id])
+
+  @@index([playerUuid])
+  @@index([serverId])
+  @@index([timestamp])
 }
