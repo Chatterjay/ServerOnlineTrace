@@ -71,4 +71,5 @@ jobs:
           files: |
             TraceSession/build/libs/tracesession-*.jar
             TraceSession-OneClick.bat
+            TraceSession-OneClick.sh
           generate_release_notes: true

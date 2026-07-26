@@ -1,182 +1,216 @@
 # TraceSession
 
-TraceSession 是一个 Minecraft 服务器在线时长追踪系统。
+TraceSession is a Minecraft server playtime and status tracking system.
 
-它由两部分组成：
+It has two parts:
 
-- **TraceSession Mod**：安装到 Minecraft 服务端，负责上报服务器状态、玩家进出、聊天、命令等数据。
-- **Web 面板 / 后端**：运行在本机或服务器上，负责保存 SQLite 数据库并提供网页面板。
+- **TraceSession Mod**: put this JAR into the Minecraft server `mods` folder.
+- **Web panel/backend**: stores data in SQLite and provides the browser dashboard.
 
-默认面板地址：
+Default panel URL:
 
 ```text
 http://localhost:27890
 ```
 
-English version: [README.en.md](README.en.md)
+## End User Install
 
-## 最简单的分发方式
+For normal users, distribute these files:
 
-如果只是给别人使用，可以只发两个文件：
+- Windows: `TraceSession-OneClick.bat`
+- Linux/macOS: `TraceSession-OneClick.sh`
+- Mod JAR: `tracesession-1.21.1-1.0.neoforge.jar`
 
-- `TraceSession-OneClick.bat`
-- `tracesession-1.21.1-1.0.neoforge.jar`
+First run:
 
-使用步骤：
-
-1. 把 `tracesession-1.21.1-1.0.neoforge.jar` 放进 Minecraft 服务端的 `mods` 文件夹。
-2. 双击 `TraceSession-OneClick.bat`。
-3. 等待脚本自动完成 Node.js 下载、网站下载、依赖安装、前端构建、数据库初始化和后端启动。
-4. 打开浏览器访问 `http://localhost:27890`。
-
-这个方式需要联网，因为脚本会下载 Node.js 和 TraceSession Web 程序。
-
-第一次部署完成后，后续仍然双击同一个 `TraceSession-OneClick.bat` 启动即可。脚本会检测已经部署好的文件，能直接启动就直接启动，不会每次都重新下载和重装。
-
-如果想强制重新部署，删除同目录下的 `TraceSession-Web` 文件夹后再运行 `TraceSession-OneClick.bat`。
-
-## 仓库完整部署
-
-如果你已经下载了整个项目，Windows 下推荐直接双击：
-
-```text
-start.bat
+```bat
+TraceSession-OneClick.bat
 ```
 
-`start.bat` 会自动完成：
+or:
 
-- 检查 Node.js 版本
-- 如果没有 Node.js，下载项目内置 portable Node.js
-- 安装前端依赖
-- 构建前端网站
-- 安装后端依赖
-- 初始化 Prisma / SQLite 数据库
-- 启动 Web 面板
-
-启动成功后会看到类似输出：
-
-```text
-Backend (HTTP) running at http://localhost:27890
+```bash
+chmod +x TraceSession-OneClick.sh
+./TraceSession-OneClick.sh
 ```
 
-窗口不要关闭，关闭后 Web 面板也会停止。
+The first run downloads Node.js if needed, downloads the Web panel, installs dependencies, builds the frontend, initializes SQLite, and starts the server.
 
-## 日常启动
+Later runs use the same script for fast startup.
 
-完整部署过一次后，可以使用：
+## Updating The Web Panel
 
-```text
-run.bat
+The Mod JAR is still updated manually by replacing the file in the Minecraft server `mods` folder.
+
+The Web panel can be updated with one command.
+
+Windows:
+
+```bat
+TraceSession-OneClick.bat update
 ```
 
-`run.bat` 不会重新安装依赖或构建前端，只会启动后端并自动检查数据库。
+Linux/macOS:
 
-如果你改了前端代码、更新了依赖，或者换了一台新电脑，请重新运行：
-
-```text
-start.bat
+```bash
+./TraceSession-OneClick.sh update
 ```
 
-## Minecraft 服务端配置
+`update` will:
 
-Mod 第一次启动后会生成配置文件：
+- stop an existing TraceSession process on port `27890`
+- save SQLite data into `TraceSession-Data`
+- download the latest Web panel from `master`
+- reinstall dependencies
+- rebuild the frontend
+- restore the database
+- start the updated Web panel
+
+## Reinstalling The Web Panel
+
+Use this when dependencies are broken or the local Web panel folder is damaged.
+
+Windows:
+
+```bat
+TraceSession-OneClick.bat reinstall
+```
+
+Linux/macOS:
+
+```bash
+./TraceSession-OneClick.sh reinstall
+```
+
+`reinstall` keeps the SQLite database, removes the old `TraceSession-Web` folder, downloads a fresh copy, installs dependencies, rebuilds, and starts.
+
+## Data Location
+
+The one-click scripts keep user data in:
+
+```text
+TraceSession-Data/tracesession.db
+```
+
+During startup the database is restored into the Web backend folder so Prisma can use it. Do not delete `TraceSession-Data` unless you intentionally want to remove tracking history.
+
+## Minecraft Server Config
+
+After the Mod starts once, it creates:
 
 ```text
 config/tracesession-common.toml
 ```
 
-默认配置：
+Default local setup:
 
 ```toml
 backendUrl = "http://localhost:27890"
 ```
 
-如果 Minecraft 服务端和 Web 面板在同一台电脑上，保持默认即可。
-
-如果 Minecraft 服务端和 Web 面板不在同一台电脑上，把 `localhost` 改成 Web 面板所在电脑或服务器的 IP：
+If the Minecraft server and Web panel are on different machines, replace `localhost` with the Web panel machine IP:
 
 ```toml
 backendUrl = "http://192.168.1.100:27890"
 ```
 
-改完配置后重启 Minecraft 服务端。
+Restart the Minecraft server after changing the config.
 
-## 数据库
+## Source Checkout Usage
 
-默认不需要配置数据库。
+If you downloaded the full source repository, use:
 
-没有设置 `DATABASE_URL` 时，后端会自动使用 SQLite：
+Windows:
 
-```text
-prisma/data/tracesession.db
+```bat
+start.bat
 ```
 
-如果需要 PostgreSQL，可以在后端 `.env` 中配置：
+Linux/macOS:
 
-```env
-DATABASE_URL="postgresql://user:password@host:5432/tracesession"
+```bash
+chmod +x start.sh
+./start.sh
 ```
 
-## 功能
+For development mode, use:
 
-Mod 会自动上报：
+```bat
+dev.bat
+```
 
-- 服务器在线 / 离线状态
-- TPS、MSPT、游戏模式、游戏版本、Mod Loader
-- 玩家加入、离开、死亡等事件
-- 玩家在线时长
-- 游戏内聊天
-- Web 面板下发的命令
+or:
 
-Web 面板可以查看：
+```bash
+./dev.sh
+```
 
-- 仪表盘
-- 服务器详情
-- 在线玩家
-- TPS / MSPT 曲线
-- 玩家统计
-- 实时事件
-- 聊天与命令控制台
+## Features
 
-## 常见问题
+The Mod reports:
 
-### `No DATABASE_URL found, using SQLite...` 是错误吗？
+- server online/offline state
+- TPS, MSPT, game mode, game version, and mod loader
+- player join, leave, and death events
+- player playtime
+- in-game chat
+- commands sent from the Web panel
 
-不是。这表示没有配置 PostgreSQL，程序正在使用默认 SQLite 数据库。
+The Web panel shows:
+
+- dashboard
+- server details
+- online players
+- TPS/MSPT charts
+- player statistics
+- realtime events
+- chat and command console
+
+## Common Issues
+
+### `No DATABASE_URL found, using SQLite...`
+
+This is normal. It means PostgreSQL is not configured and the app is using the default SQLite database.
 
 ### `A datasource block is missing in the Prisma schema file`
 
-这是 `backend/prisma/schema.prisma` 文件损坏或为空导致的。项目中必须存在完整的 Prisma schema，里面至少要包含 `generator`、`datasource` 和数据模型。
+`Timing Server Record Backend/backend/prisma/schema.prisma` is missing or damaged. Restore the full schema from the repository.
 
-### Mod 一直提示心跳发送失败
+### Mod heartbeat fails
 
-通常是 Web 后端没有启动，或者 `backendUrl` 配错了。
+The Web backend is probably not running, or `backendUrl` is wrong.
 
-先确认浏览器能打开：
+Check that this opens in a browser:
 
 ```text
 http://localhost:27890
 ```
 
-再检查：
+Then check:
 
 ```text
 config/tracesession-common.toml
 ```
 
-如果 Web 面板不在 Minecraft 服务端同一台机器上，不能使用 `localhost`，要改成 Web 面板机器的 IP。
+If the Web panel is on another machine, do not use `localhost`; use that machine's IP.
 
 ### `listen EADDRINUSE: address already in use :::27890`
 
-这表示 `27890` 端口已经被占用。最常见原因是 TraceSession 后端已经启动过一次，窗口还没有关闭。
+Port `27890` is already in use.
 
-新版 `start.bat` 和 `TraceSession-OneClick.bat` 会先检测端口：
+The current scripts first check the port:
 
-- 如果 `27890` 上已经是 TraceSession，会先关闭旧实例，再启动新的实例
-- 如果是其他程序占用，会提示占用进程 PID
+- if TraceSession is already running, the old process is stopped and a fresh one starts
+- if another program owns the port, the script prints the PID and exits
 
-手动排查可以在 PowerShell 里运行：
+Manual Windows check:
 
 ```powershell
 Get-NetTCPConnection -LocalPort 27890 -State Listen
+```
+
+Manual Linux check:
+
+```bash
+ss -ltnp 'sport = :27890'
 ```

@@ -24,6 +24,10 @@ runs/
 node_modules/
 dist/
 *.tsbuildinfo
+.tools/
+.tracesession-tools/
+TraceSession-Web/
+TraceSession-Data/
 
 # Env
 .env
