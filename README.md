@@ -100,51 +100,6 @@ backendUrl = "http://192.168.1.100:27890"
 
 改完后重启 Minecraft 服务端。
 
-## 网页终端与广播 API
-
-服务器详情页提供轻量终端：
-
-- 输入普通文字：广播到游戏内聊天。
-- 输入 `/` 开头内容：作为服务器命令下发。
-
-注意：Mod 默认跟随后端心跳轮询，网页消息会在下一次心跳时进入服务器。
-
-外部程序也可以调用广播 API。
-
-向指定服务器广播：
-
-```http
-POST /api/servers/{serverId}/broadcast
-Content-Type: application/json
-
-{
-  "message": "维护将在 10 分钟后开始",
-  "prefix": "公告"
-}
-```
-
-向所有在线服务器广播：
-
-```http
-POST /api/broadcast
-Content-Type: application/json
-
-{
-  "message": "欢迎来到服务器",
-  "prefix": "外部"
-}
-```
-
-也可以在全局接口中指定 `serverId`：
-
-```json
-{
-  "serverId": "your-server-id",
-  "message": "你好",
-  "prefix": "机器人"
-}
-```
-
 ## 源码部署
 
 完整源码仓库中：
@@ -162,17 +117,6 @@ chmod +x start.sh
 ./start.sh
 ```
 
-开发模式：
-
-```bat
-dev.bat
-```
-
-或：
-
-```bash
-./dev.sh
-```
 
 ## 常见问题
 
@@ -203,7 +147,7 @@ Linux 手动查看：
 ss -ltnp 'sport = :27890'
 ```
 
-## API 方向说明（清晰版）
+## API 
 
 ### 往内：外部系统 -> TraceSession -> Minecraft 服务器
 
@@ -323,19 +267,4 @@ apiKey = "change-this-long-random-key"
 ```text
 backend/logs/access.log
 backend/logs/audit.log
-```
-
-`access.log` 记录请求方法、路径、状态码和耗时；`audit.log` 记录命令下发、广播、清空记录、debug 写入、鉴权失败和限流事件。日志文件已被 `.gitignore` 忽略。
-
-数据库防护：
-
-- 后端使用 Prisma 参数化查询，避免拼接 SQL。
-- SQLite 数据目录会尽量设置为仅当前用户可访问。
-- SQLite 文件透明加密不是 Prisma 原生能力；需要强加密时建议使用系统磁盘加密，或切换 PostgreSQL 并启用磁盘加密、备份加密和 TLS。
-
-基础安全自检：
-
-```bash
-cd "Timing Server Record Backend/backend"
-npm run security:check
 ```
