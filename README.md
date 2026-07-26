@@ -2,28 +2,86 @@
 
 This branch is for end users.
 
-Download these two files:
+Download the files you need:
 
-- `TraceSession-OneClick.bat`
-- `tracesession-1.21.1-1.0.neoforge.jar`
+- Windows: `TraceSession-OneClick.bat`
+- Linux/macOS: `TraceSession-OneClick.sh`
+- Minecraft Mod: `tracesession-1.21.1-1.0.neoforge.jar`
 
-## Usage
+## Start
 
-1. Put `tracesession-1.21.1-1.0.neoforge.jar` into your Minecraft server `mods` folder.
-2. Double-click `TraceSession-OneClick.bat`.
-3. Open `http://localhost:27890`.
+Windows:
 
-The first run downloads and prepares the Web panel. Later runs use the same BAT for fast startup.
+```bat
+TraceSession-OneClick.bat
+```
 
-If port `27890` is already used by an older TraceSession process, the BAT stops that old process and starts a fresh one. If another program owns the port, the BAT prints the PID and stops.
+Linux/macOS:
 
-If the Minecraft server and Web panel are on different machines, edit:
+```bash
+chmod +x TraceSession-OneClick.sh
+./TraceSession-OneClick.sh
+```
+
+Open:
+
+```text
+http://localhost:27890
+```
+
+## Update Web Panel
+
+The Mod JAR is updated manually by replacing the file in the Minecraft server `mods` folder.
+
+The Web panel can update itself:
+
+```bat
+TraceSession-OneClick.bat update
+```
+
+or:
+
+```bash
+./TraceSession-OneClick.sh update
+```
+
+## Reinstall Web Panel
+
+Use this if the local Web panel is broken:
+
+```bat
+TraceSession-OneClick.bat reinstall
+```
+
+or:
+
+```bash
+./TraceSession-OneClick.sh reinstall
+```
+
+`update` and `reinstall` keep the SQLite database in:
+
+```text
+TraceSession-Data/tracesession.db
+```
+
+## Minecraft Config
+
+Put the JAR into your Minecraft server `mods` folder.
+
+If the Web panel and Minecraft server are on the same machine, keep:
+
+```toml
+backendUrl = "http://localhost:27890"
+```
+
+If they are on different machines, edit:
 
 ```text
 config/tracesession-common.toml
 ```
 
-Set `backendUrl` to the Web panel machine IP:
+Use the Web panel machine IP:
 
 ```toml
 backendUrl = "http://192.168.1.100:27890"
