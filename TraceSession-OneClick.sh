@@ -14,6 +14,7 @@ case "$ACTION" in
 esac
 
 REPO_ZIP="https://github.com/Chatterjay/ServerOnlineTrace/archive/refs/heads/master.zip"
+APP_VERSION="1.1.0"
 ROOT="$(cd "$(dirname "$0")" && pwd)"
 INSTALL_DIR="$ROOT/TraceSession-Web"
 DATA_DIR="$ROOT/TraceSession-Data"
@@ -151,9 +152,19 @@ restore_data() {
 
 download_app() {
   if [ -f "$INSTALL_DIR/Timing Server Record Backend/backend/startup.mjs" ]; then
-    echo "Existing web app found: $INSTALL_DIR"
-    echo
-    return
+    local installed_version=""
+    if [ -f "$INSTALL_DIR/.tracesession-version" ]; then
+      installed_version="$(cat "$INSTALL_DIR/.tracesession-version" || true)"
+    fi
+    if [ "$installed_version" = "$APP_VERSION" ]; then
+      echo "Existing web app found: $INSTALL_DIR"
+      echo "Version: $APP_VERSION"
+      echo
+      return
+    fi
+    echo "Existing web app is old or unmarked. Updating to $APP_VERSION and keeping data."
+    backup_data
+    rm -rf "$INSTALL_DIR"
   fi
 
   echo "Downloading TraceSession web app..."
@@ -183,6 +194,7 @@ PY
   fi
   rm -rf "$INSTALL_DIR"
   mv "$src" "$INSTALL_DIR"
+  printf '%s\n' "$APP_VERSION" > "$INSTALL_DIR/.tracesession-version"
 }
 
 refresh_app() {

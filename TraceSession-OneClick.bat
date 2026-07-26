@@ -13,6 +13,7 @@ if /I not "%ACTION%"=="start" if /I not "%ACTION%"=="update" if /I not "%ACTION%
 )
 
 set "REPO_ZIP=https://github.com/Chatterjay/ServerOnlineTrace/archive/refs/heads/master.zip"
+set "APP_VERSION=1.1.0"
 set "ROOT=%~dp0"
 set "INSTALL_DIR=%ROOT%TraceSession-Web"
 set "DATA_DIR=%ROOT%TraceSession-Data"
@@ -191,10 +192,21 @@ exit /b 0
 
 :download_app
 if exist "%INSTALL_DIR%\Timing Server Record Backend\backend\startup.mjs" (
-    echo Existing web app found:
-    echo %INSTALL_DIR%
-    echo.
-    exit /b 0
+    set "INSTALLED_VERSION="
+    if exist "%INSTALL_DIR%\.tracesession-version" set /p INSTALLED_VERSION=<"%INSTALL_DIR%\.tracesession-version"
+    if /I "!INSTALLED_VERSION!"=="%APP_VERSION%" (
+        echo Existing web app found:
+        echo %INSTALL_DIR%
+        echo Version: %APP_VERSION%
+        echo.
+        exit /b 0
+    )
+    echo Existing web app is old or unmarked. Updating to %APP_VERSION% and keeping data.
+    call :backup_data
+    if errorlevel 1 exit /b 1
+    powershell -NoProfile -ExecutionPolicy Bypass -Command ^
+      "$ErrorActionPreference='Stop'; Remove-Item -LiteralPath $env:INSTALL_DIR -Recurse -Force;"
+    if errorlevel 1 exit /b 1
 )
 
 echo Downloading TraceSession web app...
@@ -213,6 +225,8 @@ powershell -NoProfile -ExecutionPolicy Bypass -Command ^
   "if (Test-Path $install) { Remove-Item -LiteralPath $install -Recurse -Force }" ^
   "Move-Item -LiteralPath $src.FullName -Destination $install;"
 
+if errorlevel 1 exit /b 1
+> "%INSTALL_DIR%\.tracesession-version" echo %APP_VERSION%
 exit /b %ERRORLEVEL%
 
 :check_port

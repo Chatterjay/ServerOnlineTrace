@@ -42,6 +42,11 @@ export interface Server {
   maxPlayers?: number | null;
 }
 
+export interface AppVersion {
+  name: string;
+  version: string;
+}
+
 export interface PlayerProfile {
   uuid: string;
   name: string;
@@ -247,6 +252,10 @@ export interface SessionListItem {
 
 export async function fetchServers(): Promise<Server[]> {
   return apiJson<Server[]>("/servers");
+}
+
+export async function fetchVersion(): Promise<AppVersion> {
+  return apiJson<AppVersion>("/version");
 }
 
 export async function fetchServer(id: string): Promise<Server> {

@@ -17,6 +17,7 @@
           </el-menu-item>
         </el-menu>
         <div class="ts-sidebar-footer">
+          <el-tag v-if="appVersion" effect="plain">Web v{{ appVersion }}</el-tag>
           <el-tag v-if="dbType" effect="plain">{{ dbType }}</el-tag>
           <el-switch v-model="isDark" inline-prompt active-text="黑" inactive-text="白" @change="toggleTheme" />
         </div>
@@ -40,9 +41,10 @@
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
 import { DataAnalysis, InfoFilled, Monitor } from "@element-plus/icons-vue";
-import { fetchDbType } from "./api/index.js";
+import { fetchDbType, fetchVersion } from "./api/index.js";
 
 const dbType = ref("");
+const appVersion = ref("");
 const isDark = ref(true);
 
 function applyTheme(dark: boolean) {
@@ -60,6 +62,12 @@ onMounted(async () => {
   const saved = localStorage.getItem("tracesession-theme");
   const prefersLight = window.matchMedia?.("(prefers-color-scheme: light)").matches;
   applyTheme(saved ? saved !== "light" : !prefersLight);
+  try {
+    const version = await fetchVersion();
+    appVersion.value = version.version;
+  } catch {
+    appVersion.value = "";
+  }
   try {
     dbType.value = (await fetchDbType()).type;
   } catch {

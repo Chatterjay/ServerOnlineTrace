@@ -20,6 +20,7 @@ const app = express();
 const HTTP_PORT = parseInt(process.env.HTTP_PORT || "27890");
 const HTTPS_PORT = parseInt(process.env.HTTPS_PORT || "27891");
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const packageJson = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "package.json"), "utf-8")) as { version?: string };
 
 const corsOrigins = allowedCorsOrigins();
 app.disable("x-powered-by");
@@ -46,7 +47,7 @@ app.use("/api", rateLimit(
 ));
 
 app.use("/api", (req, res, next) => {
-  if (req.path === "/health") {
+  if (req.path === "/health" || req.path === "/version") {
     next();
     return;
   }
@@ -80,6 +81,13 @@ app.get("/api/db-type", (_req, res) => {
   const url = process.env.DATABASE_URL || "";
   const type = url.startsWith("postgresql") ? "PostgreSQL" : "SQLite";
   res.json({ type, file: type === "SQLite" ? "data/tracesession.db" : null });
+});
+
+app.get("/api/version", (_req, res) => {
+  res.json({
+    name: "TraceSession Web",
+    version: packageJson.version || "0.0.0",
+  });
 });
 
 app.get("/api/security", (req, res) => {

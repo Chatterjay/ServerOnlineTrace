@@ -17,7 +17,7 @@ http://localhost:27890
 
 - Windows：`TraceSession-OneClick.bat`
 - Linux/macOS：`TraceSession-OneClick.sh`
-- Mod：`tracesession-1.21.1-1.0.neoforge.jar`
+- Mod：`tracesession-1.21.1-1.1.0[neoforge].jar`
 
 Windows 启动：
 
@@ -33,6 +33,8 @@ chmod +x TraceSession-OneClick.sh
 ```
 
 第一次运行会自动下载 Node.js、下载网站程序、安装依赖、构建前端、初始化 SQLite 数据库并启动面板。后续直接运行同一个脚本会快速启动。
+
+一键脚本会记录网站版本。下载了新版 `TraceSession-OneClick.bat` / `TraceSession-OneClick.sh` 后，即使直接普通启动，脚本也会在发现本地 `TraceSession-Web` 版本过旧时保留 `TraceSession-Data` 并自动刷新网站代码。
 
 ## 网站更新
 
@@ -244,6 +246,30 @@ GET /api/servers/{serverId}/players
 ## 安全部署建议
 
 本机测试可以零配置运行。只要面板会被局域网、面板服或公网访问，建议在后端 `.env` 配置：
+
+常用配置文件路径：
+
+```text
+源码部署后端配置：
+<仓库目录>\Timing Server Record Backend\backend\.env
+
+一键脚本 Windows 部署后端配置：
+<TraceSession-OneClick.bat 所在目录>\TraceSession-Web\Timing Server Record Backend\backend\.env
+
+一键脚本 Linux/macOS 部署后端配置：
+<TraceSession-OneClick.sh 所在目录>/TraceSession-Web/Timing Server Record Backend/backend/.env
+
+后端配置样例：
+Timing Server Record Backend\backend\.env.example
+
+Minecraft 服务端 Mod 配置：
+<Minecraft 服务端目录>\config\tracesession-common.toml
+
+你的测试服示例：
+D:\Temp\EmiLink\1.21.1\server_test\config\tracesession-common.toml
+```
+
+如果 `.env` 不存在，先复制 `.env.example` 为 `.env` 再修改。只要后端设置了 `TRACESESSION_API_KEY`，Minecraft 服务端的 `tracesession-common.toml` 里也必须设置相同的 `apiKey`。
 
 ```env
 TRACESESSION_API_KEY=change-this-long-random-key
