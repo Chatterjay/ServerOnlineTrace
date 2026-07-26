@@ -39,6 +39,7 @@ TraceSession-Data/
 ssl/
 
 # Logs
+logs/
 *.log
 hs_err_pid*
 

@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { dispatchOutbound } from "../outbound.js";
 import { sanitizeText } from "../security.js";
+import { auditLog } from "../logger.js";
 
 interface ChatMessage {
   id: string;
@@ -49,6 +50,7 @@ router.get("/:id/chat", (req, res) => {
 router.delete("/:id/chat", (req, res) => {
   const removed = chatMap.get(req.params.id)?.length ?? 0;
   chatMap.set(req.params.id, []);
+  auditLog("chat_cleared", req, { serverId: req.params.id, removed });
   res.json({ ok: true, removed });
 });
 

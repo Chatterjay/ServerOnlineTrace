@@ -2,6 +2,7 @@ import { Router, Request, Response } from "express";
 import prisma from "../prisma.js";
 import { takePending } from "./commands.js";
 import { isDebugApiEnabled, requireTrustedRequest, sanitizeText } from "../security.js";
+import { auditLog } from "../logger.js";
 
 const router = Router();
 
@@ -502,6 +503,7 @@ router.get("/:id/players/:uuid/overview", (req: Request, res: Response) => {
 router.post("/:id/players/:uuid/overview/request", (req: Request, res: Response) => {
   playerOverviewByServer.get(req.params.id)?.delete(req.params.uuid);
   queueOverviewRequest(req.params.id, req.params.uuid);
+  auditLog("overview_requested", req, { serverId: req.params.id, playerUuid: req.params.uuid });
   res.json({ ok: true, serverId: req.params.id, playerUuid: req.params.uuid });
 });
 
@@ -698,6 +700,7 @@ router.post("/:id/debug/playtime", async (req: Request, res: Response) => {
   await prisma.event.create({
     data: { serverId: req.params.id, playerUuid, type: "debug-playtime", timestamp: now },
   });
+  auditLog("debug_playtime", req, { serverId: req.params.id, playerUuid, seconds: Math.floor(duration) });
   res.json({ ok: true, playerUuid, seconds: Math.floor(duration) });
 });
 
@@ -743,6 +746,7 @@ router.post("/:id/debug/seed", async (req: Request, res: Response) => {
       data: { serverId: req.params.id, playerUuid: player.uuid, type: index % 4 === 0 ? "death" : "debug-seed", timestamp: now },
     });
   }
+  auditLog("debug_seed", req, { serverId: req.params.id, count });
   res.json({ ok: true, count });
 });
 
@@ -753,6 +757,7 @@ router.put("/:id/note", async (req: Request, res: Response) => {
     where: { id: req.params.id },
     data: { note },
   });
+  auditLog("server_note_updated", req, { serverId: req.params.id });
   res.json(server);
 });
 

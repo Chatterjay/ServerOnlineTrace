@@ -297,8 +297,9 @@ public class Tracesession
                         minecraftServer.getCommands().performPrefixedCommand(source, text);
                         LOGGER.info("Executed web terminal command as permission level 0: {}", text);
                     } else {
-                        String payload = text.startsWith("[") ? "§7" + text : "§7[网站] §f" + text;
-                        var msg = net.minecraft.network.chat.Component.literal(payload);
+                        var msg = text.startsWith("[")
+                                ? net.minecraft.network.chat.Component.literal("§7" + text)
+                                : net.minecraft.network.chat.Component.translatable("tracesession.chat.website", text);
                         minecraftServer.getPlayerList().broadcastSystemMessage(msg, false);
                         LOGGER.info("Broadcast chat: {}", text);
                     }

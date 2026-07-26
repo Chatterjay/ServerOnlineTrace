@@ -1,1 +1,16 @@
-{}
+{
+  "tracesession.chat.join": "§e%s joined the game",
+  "tracesession.chat.leave": "§e%s left the game",
+  "tracesession.chat.website": "§7[Website] §f%s",
+  "tracesession.command.heartbeat_failed": "TraceSession heartbeat failed; check backend URL and server log.",
+  "tracesession.command.heartbeat_sent": "TraceSession heartbeat sent.",
+  "tracesession.command.snapshot_failed": "TraceSession snapshot upload failed; check backend URL and server log.",
+  "tracesession.command.snapshot_sent": "TraceSession uploaded %s online player snapshot(s).",
+  "tracesession.command.player_not_online": "Player is not online: %s",
+  "tracesession.command.fake_death_sent": "TraceSession fake death event sent for %s.",
+  "tracesession.command.debug_disabled": "TraceSession debug write commands are disabled. Set enableDebugCommands=true in the mod config and TRACESESSION_ENABLE_DEBUG_API=true on the backend.",
+  "tracesession.command.set_playtime_failed": "TraceSession set-playtime failed; check backend log.",
+  "tracesession.command.set_playtime_sent": "TraceSession added a test session of %s seconds for %s.",
+  "tracesession.command.seed_failed": "TraceSession seed failed; check backend log.",
+  "tracesession.command.seed_sent": "TraceSession seeded %s test player row(s)."
+}

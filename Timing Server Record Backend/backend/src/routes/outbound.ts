@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { dispatchOutbound, getOutboundStatus } from "../outbound.js";
+import { auditLog } from "../logger.js";
 
 const router = Router();
 
@@ -16,6 +17,7 @@ router.post("/test", (req, res) => {
     type: "webhook-test",
     message,
   });
+  auditLog("outbound_test", req, { message });
   res.json({ ok: true, outbound: getOutboundStatus() });
 });
 

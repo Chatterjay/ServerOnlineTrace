@@ -2,6 +2,7 @@ import { Router, Request, Response } from "express";
 import prisma from "../prisma.js";
 import { dispatchOutbound } from "../outbound.js";
 import { sanitizeText } from "../security.js";
+import { auditLog } from "../logger.js";
 
 const router = Router();
 
@@ -109,6 +110,7 @@ router.delete("/", async (req: Request, res: Response) => {
   }
 
   const deleted = await prisma.event.deleteMany({ where });
+  auditLog("events_cleared", req, { serverId, playerUuid, removed: deleted.count });
   res.json({ ok: true, removed: deleted.count });
 });
 

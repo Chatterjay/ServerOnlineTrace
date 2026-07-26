@@ -7,6 +7,7 @@
     "dev": "tsx watch src/index.ts",
     "start": "node startup.mjs",
     "build": "tsc",
+    "security:check": "node scripts/security-check.mjs",
     "db:generate": "prisma generate",
     "db:push": "prisma db push"
   },

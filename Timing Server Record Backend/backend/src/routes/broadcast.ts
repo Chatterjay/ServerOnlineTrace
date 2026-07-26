@@ -2,6 +2,7 @@ import { Router, Request, Response } from "express";
 import prisma from "../prisma.js";
 import { enqueueCommand } from "./commands.js";
 import { sanitizeText } from "../security.js";
+import { auditLog } from "../logger.js";
 
 const router = Router();
 
@@ -18,6 +19,7 @@ router.post("/", async (req: Request, res: Response) => {
 
   if (serverId) {
     const queued = enqueueCommand(serverId, command);
+    auditLog("global_broadcast_queued", req, { targets: [serverId], prefix: label });
     res.status(201).json({ ok: true, targets: [serverId], queued: [queued] });
     return;
   }
@@ -27,6 +29,7 @@ router.post("/", async (req: Request, res: Response) => {
     select: { id: true },
   });
   const queued = servers.map(server => enqueueCommand(server.id, command));
+  auditLog("global_broadcast_queued", req, { targets: servers.map(s => s.id), prefix: label });
   res.status(201).json({ ok: true, targets: servers.map(s => s.id), queued });
 });
 

@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { requireTrustedRequest, sanitizeText } from "../security.js";
+import { auditLog } from "../logger.js";
 
 export interface QueuedCommand {
   id: string;
@@ -59,6 +60,7 @@ router.post("/:id/command", (req, res) => {
     return;
   }
   const entry = enqueueCommand(req.params.id, text);
+  auditLog("command_queued", req, { serverId: req.params.id, commandId: entry.id, command: text.startsWith("/") ? text.split(" ")[0] : "[chat]" });
   res.status(201).json(entry);
 });
 
@@ -71,6 +73,7 @@ router.post("/:id/broadcast", (req, res) => {
 
   const label = sanitizeText(req.body?.prefix, 24) || "网站";
   const entry = enqueueCommand(req.params.id, `[${label}] ${text}`);
+  auditLog("broadcast_queued", req, { serverId: req.params.id, commandId: entry.id, prefix: label });
   res.status(201).json({ ok: true, broadcast: text, queued: entry });
 });
 

@@ -1,3 +1,5 @@
+import { createHmac } from "node:crypto";
+
 export type OutboundKind = "chat.message" | "event.created";
 
 export interface OutboundEnvelope<T> {
@@ -7,6 +9,7 @@ export interface OutboundEnvelope<T> {
 }
 
 const WEBHOOK_ENV = "OUTBOUND_WEBHOOK_URLS";
+const WEBHOOK_SECRET_ENV = "OUTBOUND_WEBHOOK_SECRET";
 const OUTBOUND_TIMEOUT_MS = 4_000;
 
 function webhookUrls() {
@@ -21,6 +24,7 @@ export function getOutboundStatus() {
   return {
     enabled: urls.length > 0,
     env: WEBHOOK_ENV,
+    signed: Boolean((process.env[WEBHOOK_SECRET_ENV] || "").trim()),
     targets: urls.map(url => maskUrl(url)),
   };
 }
@@ -42,9 +46,17 @@ export function dispatchOutbound<T>(kind: OutboundKind, payload: T) {
   for (const url of urls) {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), OUTBOUND_TIMEOUT_MS);
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+      "User-Agent": "TraceSession-Outbound/1.0",
+    };
+    const secret = (process.env[WEBHOOK_SECRET_ENV] || "").trim();
+    if (secret) {
+      headers["X-TraceSession-Signature"] = `sha256=${createHmac("sha256", secret).update(body).digest("hex")}`;
+    }
     fetch(url, {
       method: "POST",
-      headers: { "Content-Type": "application/json", "User-Agent": "TraceSession-Outbound/1.0" },
+      headers,
       body,
       signal: controller.signal,
     }).catch(error => {

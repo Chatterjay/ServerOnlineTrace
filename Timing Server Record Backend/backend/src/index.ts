@@ -13,6 +13,8 @@ import chatRouter from "./routes/chat.js";
 import broadcastRouter from "./routes/broadcast.js";
 import outboundRouter from "./routes/outbound.js";
 import { allowedCorsOrigins, configuredApiKey, isLoopbackRequest, requireTrustedRequest } from "./security.js";
+import { accessLogger } from "./logger.js";
+import { rateLimit } from "./rateLimit.js";
 
 const app = express();
 const HTTP_PORT = parseInt(process.env.HTTP_PORT || "27890");
@@ -20,6 +22,14 @@ const HTTPS_PORT = parseInt(process.env.HTTPS_PORT || "27891");
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const corsOrigins = allowedCorsOrigins();
+app.disable("x-powered-by");
+app.use((_req, res, next) => {
+  res.setHeader("X-Content-Type-Options", "nosniff");
+  res.setHeader("Referrer-Policy", "no-referrer");
+  res.setHeader("X-Frame-Options", "SAMEORIGIN");
+  next();
+});
+app.use(accessLogger);
 app.use(cors({
   origin(origin, callback) {
     if (!origin || corsOrigins.length === 0 || corsOrigins.includes(origin) || /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)) {
@@ -30,6 +40,10 @@ app.use(cors({
   },
 }));
 app.use(express.json({ limit: "256kb" }));
+app.use("/api", rateLimit(
+  parseInt(process.env.TRACESESSION_RATE_LIMIT_WINDOW_MS || "60000", 10),
+  parseInt(process.env.TRACESESSION_RATE_LIMIT_MAX || "240", 10),
+));
 
 app.use("/api", (req, res, next) => {
   if (req.path === "/health") {

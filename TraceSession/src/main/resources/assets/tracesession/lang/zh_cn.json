@@ -1,0 +1,16 @@
+{
+  "tracesession.chat.join": "§e%s 加入了游戏",
+  "tracesession.chat.leave": "§e%s 离开了游戏",
+  "tracesession.chat.website": "§7[网站] §f%s",
+  "tracesession.command.heartbeat_failed": "TraceSession 心跳发送失败，请检查后端地址和服务端日志。",
+  "tracesession.command.heartbeat_sent": "TraceSession 心跳已发送。",
+  "tracesession.command.snapshot_failed": "TraceSession 玩家快照上传失败，请检查后端地址和服务端日志。",
+  "tracesession.command.snapshot_sent": "TraceSession 已上传 %s 个在线玩家快照。",
+  "tracesession.command.player_not_online": "玩家不在线：%s",
+  "tracesession.command.fake_death_sent": "TraceSession 已为 %s 发送测试死亡事件。",
+  "tracesession.command.debug_disabled": "TraceSession 调试写入命令已关闭。需要在模组配置中设置 enableDebugCommands=true，并在后端设置 TRACESESSION_ENABLE_DEBUG_API=true。",
+  "tracesession.command.set_playtime_failed": "TraceSession 设置在线时长失败，请检查后端日志。",
+  "tracesession.command.set_playtime_sent": "TraceSession 已为 %2$s 添加 %1$s 秒测试会话。",
+  "tracesession.command.seed_failed": "TraceSession 生成测试数据失败，请检查后端日志。",
+  "tracesession.command.seed_sent": "TraceSession 已生成 %s 条测试玩家数据。"
+}

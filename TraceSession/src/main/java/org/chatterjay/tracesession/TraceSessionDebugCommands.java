@@ -65,10 +65,10 @@ public class TraceSessionDebugCommands
         tracesession.refreshOnlinePlayersSnapshot();
         var response = tracesession.sendImmediateHeartbeat();
         if (response == null) {
-            source.sendFailure(Component.literal("TraceSession heartbeat failed; check backend URL and server log."));
+            source.sendFailure(Component.translatable("tracesession.command.heartbeat_failed"));
             return 0;
         }
-        source.sendSuccess(() -> Component.literal("TraceSession heartbeat sent."), false);
+        source.sendSuccess(() -> Component.translatable("tracesession.command.heartbeat_sent"), false);
         return 1;
     }
 
@@ -78,10 +78,10 @@ public class TraceSessionDebugCommands
         int count = tracesession.buildOnlinePlayersSnapshot().size();
         var response = tracesession.sendImmediateHeartbeat();
         if (response == null) {
-            source.sendFailure(Component.literal("TraceSession snapshot upload failed; check backend URL and server log."));
+            source.sendFailure(Component.translatable("tracesession.command.snapshot_failed"));
             return 0;
         }
-        source.sendSuccess(() -> Component.literal("TraceSession uploaded " + count + " online player snapshot(s)."), false);
+        source.sendSuccess(() -> Component.translatable("tracesession.command.snapshot_sent", count), false);
         return count;
     }
 
@@ -89,46 +89,46 @@ public class TraceSessionDebugCommands
     {
         var player = findPlayer(playerName);
         if (player == null) {
-            source.sendFailure(Component.literal("Player is not online: " + playerName));
+            source.sendFailure(Component.translatable("tracesession.command.player_not_online", playerName));
             return 0;
         }
         Tracesession.getApiClient().sendEvent(Config.serverId, player.getUUID().toString(), player.getName().getString(), "death");
-        source.sendSuccess(() -> Component.literal("TraceSession fake death event sent for " + player.getName().getString()), false);
+        source.sendSuccess(() -> Component.translatable("tracesession.command.fake_death_sent", player.getName().getString()), false);
         return 1;
     }
 
     private int setPlaytime(net.minecraft.commands.CommandSourceStack source, String playerName, int seconds)
     {
         if (!Config.enableDebugCommands) {
-            source.sendFailure(Component.literal("TraceSession debug write commands are disabled. Set enableDebugCommands=true in the mod config."));
+            source.sendFailure(Component.translatable("tracesession.command.debug_disabled"));
             return 0;
         }
         var player = findPlayer(playerName);
         if (player == null) {
-            source.sendFailure(Component.literal("Player is not online: " + playerName));
+            source.sendFailure(Component.translatable("tracesession.command.player_not_online", playerName));
             return 0;
         }
         boolean ok = Tracesession.getApiClient().sendDebugPlaytime(Config.serverId, player.getUUID().toString(), player.getName().getString(), seconds);
         if (!ok) {
-            source.sendFailure(Component.literal("TraceSession set-playtime failed; check backend log."));
+            source.sendFailure(Component.translatable("tracesession.command.set_playtime_failed"));
             return 0;
         }
-        source.sendSuccess(() -> Component.literal("TraceSession added a test session of " + seconds + " seconds for " + player.getName().getString()), false);
+        source.sendSuccess(() -> Component.translatable("tracesession.command.set_playtime_sent", seconds, player.getName().getString()), false);
         return 1;
     }
 
     private int seed(net.minecraft.commands.CommandSourceStack source, int count)
     {
         if (!Config.enableDebugCommands) {
-            source.sendFailure(Component.literal("TraceSession debug write commands are disabled. Set enableDebugCommands=true in the mod config."));
+            source.sendFailure(Component.translatable("tracesession.command.debug_disabled"));
             return 0;
         }
         boolean ok = Tracesession.getApiClient().sendDebugSeed(Config.serverId, count);
         if (!ok) {
-            source.sendFailure(Component.literal("TraceSession seed failed; check backend log."));
+            source.sendFailure(Component.translatable("tracesession.command.seed_failed"));
             return 0;
         }
-        source.sendSuccess(() -> Component.literal("TraceSession seeded " + count + " test player row(s)."), false);
+        source.sendSuccess(() -> Component.translatable("tracesession.command.seed_sent", count), false);
         return count;
     }
 

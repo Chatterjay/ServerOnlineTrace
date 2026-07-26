@@ -296,3 +296,46 @@ GET /api/events?serverId={serverId}
 GET /api/servers/{serverId}
 GET /api/servers/{serverId}/players
 ```
+
+## 安全部署建议
+
+本机测试可以零配置运行。只要面板会被局域网、面板服或公网访问，建议在后端 `.env` 配置：
+
+```env
+TRACESESSION_API_KEY=change-this-long-random-key
+TRACESESSION_REQUIRE_API_KEY_FOR_WRITES=true
+TRACESESSION_REQUIRE_API_KEY_FOR_READS=true
+TRACESESSION_CORS_ORIGINS=https://panel.example.com
+TRACESESSION_RATE_LIMIT_WINDOW_MS=60000
+TRACESESSION_RATE_LIMIT_MAX=240
+TRACESESSION_ENABLE_DEBUG_API=false
+OUTBOUND_WEBHOOK_SECRET=change-this-webhook-signing-secret
+```
+
+同时在 Minecraft 服务端 `config/tracesession-common.toml` 中设置同一个：
+
+```toml
+apiKey = "change-this-long-random-key"
+```
+
+后端会写两类本地日志：
+
+```text
+backend/logs/access.log
+backend/logs/audit.log
+```
+
+`access.log` 记录请求方法、路径、状态码和耗时；`audit.log` 记录命令下发、广播、清空记录、debug 写入、鉴权失败和限流事件。日志文件已被 `.gitignore` 忽略。
+
+数据库防护：
+
+- 后端使用 Prisma 参数化查询，避免拼接 SQL。
+- SQLite 数据目录会尽量设置为仅当前用户可访问。
+- SQLite 文件透明加密不是 Prisma 原生能力；需要强加密时建议使用系统磁盘加密，或切换 PostgreSQL 并启用磁盘加密、备份加密和 TLS。
+
+基础安全自检：
+
+```bash
+cd "Timing Server Record Backend/backend"
+npm run security:check
+```

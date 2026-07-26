@@ -26,7 +26,7 @@ public class PlayerEventListener
         var server = player.getServer();
         if (server != null)
         {
-            var msg = Component.literal("§e" + player.getName().getString() + "§e 加入了游戏");
+            var msg = Component.translatable("tracesession.chat.join", player.getName().getString());
             server.getPlayerList().broadcastSystemMessage(msg, false);
         }
         LOGGER.info("Player joined: {} (UUID: {})", player.getName().getString(), player.getUUID());
@@ -41,7 +41,7 @@ public class PlayerEventListener
         var server = player.getServer();
         if (server != null)
         {
-            var msg = Component.literal("§e" + player.getName().getString() + "§e 离开了游戏");
+            var msg = Component.translatable("tracesession.chat.leave", player.getName().getString());
             server.getPlayerList().broadcastSystemMessage(msg, false);
         }
         LOGGER.info("Player left: {} (UUID: {})", player.getName().getString(), player.getUUID());
